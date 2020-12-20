@@ -1,0 +1,12 @@
+C:\Users\Pieter-Jan Briers\Projects\space-station-14\RobustToolbox\System.Net.HttpListener\src\obj\Debug\net5.0\System.Net.HttpListener.csprojAssemblyReference.cache
+C:\Users\Pieter-Jan Briers\Projects\space-station-14\RobustToolbox\System.Net.HttpListener\src\obj\Debug\net5.0\System.Net.HttpListener.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Pieter-Jan Briers\Projects\space-station-14\RobustToolbox\System.Net.HttpListener\src\obj\Debug\net5.0\System.Net.HttpListener.AssemblyInfoInputs.cache
+C:\Users\Pieter-Jan Briers\Projects\space-station-14\RobustToolbox\System.Net.HttpListener\src\obj\Debug\net5.0\System.Net.HttpListener.AssemblyInfo.cs
+C:\Users\Pieter-Jan Briers\Projects\space-station-14\RobustToolbox\System.Net.HttpListener\src\obj\Debug\net5.0\System.Net.HttpListener.csproj.CoreCompileInputs.cache
+C:\Users\Pieter-Jan Briers\Projects\space-station-14\RobustToolbox\System.Net.HttpListener\src\bin\Debug\net5.0\ManagedHttpListener.deps.json
+C:\Users\Pieter-Jan Briers\Projects\space-station-14\RobustToolbox\System.Net.HttpListener\src\bin\Debug\net5.0\ManagedHttpListener.dll
+C:\Users\Pieter-Jan Briers\Projects\space-station-14\RobustToolbox\System.Net.HttpListener\src\bin\Debug\net5.0\ref\ManagedHttpListener.dll
+C:\Users\Pieter-Jan Briers\Projects\space-station-14\RobustToolbox\System.Net.HttpListener\src\bin\Debug\net5.0\ManagedHttpListener.pdb
+C:\Users\Pieter-Jan Briers\Projects\space-station-14\RobustToolbox\System.Net.HttpListener\src\obj\Debug\net5.0\ManagedHttpListener.dll
+C:\Users\Pieter-Jan Briers\Projects\space-station-14\RobustToolbox\System.Net.HttpListener\src\obj\Debug\net5.0\ref\ManagedHttpListener.dll
+C:\Users\Pieter-Jan Briers\Projects\space-station-14\RobustToolbox\System.Net.HttpListener\src\obj\Debug\net5.0\ManagedHttpListener.pdb
