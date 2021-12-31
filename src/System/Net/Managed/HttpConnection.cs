@@ -492,6 +492,7 @@ namespace ManagedHttpListener
 
             try
             {
+                _socket.Shutdown(SocketShutdown.Both);
                 _socket.Close();
             }
             catch { }
