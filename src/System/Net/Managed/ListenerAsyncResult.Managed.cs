@@ -38,7 +38,7 @@ using System.Threading;
 
 namespace ManagedHttpListener
 {
-    internal class ListenerAsyncResult : IAsyncResult
+    internal sealed class ListenerAsyncResult : IAsyncResult
     {
         private ManualResetEvent? _handle;
         private bool _synch;

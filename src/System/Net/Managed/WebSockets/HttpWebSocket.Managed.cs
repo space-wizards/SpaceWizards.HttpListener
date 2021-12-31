@@ -13,7 +13,7 @@ namespace ManagedHttpListener.WebSockets
         private const string SupportedVersion = "13";
 
         internal static async Task<HttpListenerWebSocketContext> AcceptWebSocketAsyncCore(HttpListenerContext context,
-            string subProtocol,
+            string? subProtocol,
             int receiveBufferSize,
             TimeSpan keepAliveInterval,
             ArraySegment<byte>? internalBuffer = null)

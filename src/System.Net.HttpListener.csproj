@@ -2,7 +2,7 @@
   <PropertyGroup>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <ForceManagedImplementation>true</ForceManagedImplementation>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
     <CommonPath>..\Common\src\</CommonPath>
     <EnableDefaultCompileItems>False</EnableDefaultCompileItems>

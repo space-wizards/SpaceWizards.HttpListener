@@ -41,7 +41,7 @@ namespace ManagedHttpListener
         private readonly HttpListenerContext _context;
         private bool _no_more_data;
 
-        private class ReadBufferState
+        private sealed class ReadBufferState
         {
             public byte[] Buffer;
             public int Offset;

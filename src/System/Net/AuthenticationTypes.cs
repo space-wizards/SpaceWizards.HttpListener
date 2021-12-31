@@ -3,7 +3,7 @@
 
 namespace ManagedHttpListener
 {
-    internal class AuthenticationTypes
+    internal sealed class AuthenticationTypes
     {
         internal const string NTLM = "NTLM";
         internal const string Negotiate = "Negotiate";

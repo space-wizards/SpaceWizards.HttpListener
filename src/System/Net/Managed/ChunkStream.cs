@@ -53,7 +53,7 @@ namespace ManagedHttpListener
             Trailer
         }
 
-        private class Chunk
+        private sealed class Chunk
         {
             public byte[] Bytes;
             public int Offset;
@@ -276,7 +276,7 @@ namespace ManagedHttpListener
                 {
                     if (_saved.Length > 0)
                     {
-                        _chunkSize = int.Parse(RemoveChunkExtension(_saved.ToString()), NumberStyles.HexNumber);
+                        _chunkSize = int.Parse(RemoveChunkExtension(_saved.ToString()), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
                     }
                 }
                 catch (Exception)
@@ -290,7 +290,7 @@ namespace ManagedHttpListener
             _chunkRead = 0;
             try
             {
-                _chunkSize = int.Parse(RemoveChunkExtension(_saved.ToString()), NumberStyles.HexNumber);
+                _chunkSize = int.Parse(RemoveChunkExtension(_saved.ToString()), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
             }
             catch (Exception)
             {
@@ -367,7 +367,7 @@ namespace ManagedHttpListener
 
                 if (st > 0)
                 {
-                    _saved.Append(stString.Substring(0, _saved.Length == 0 ? st - 2 : st));
+                    _saved.Append(stString.AsSpan(0, _saved.Length == 0 ? st - 2 : st));
                     st = 0;
                     if (_saved.Length > 4196)
                         ThrowProtocolViolation("Error reading trailer (too long).");

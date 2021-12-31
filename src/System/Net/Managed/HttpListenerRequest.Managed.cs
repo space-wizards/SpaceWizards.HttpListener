@@ -45,7 +45,7 @@ namespace ManagedHttpListener
 {
     public sealed partial class HttpListenerRequest
     {
-        private class Context : TransportContext
+        private sealed class Context : TransportContext
         {
             public override ChannelBinding? GetChannelBinding(ChannelBindingKind kind)
             {
@@ -197,7 +197,7 @@ namespace ManagedHttpListener
             if (colon >= 0)
                 host = host.Substring(0, colon);
 
-            string base_uri = string.Format("{0}://{1}:{2}", RequestScheme, host, LocalEndPoint!.Port);
+            string base_uri = $"{RequestScheme}://{host}:{LocalEndPoint!.Port}";
 
             if (!Uri.TryCreate(base_uri + path, UriKind.Absolute, out _requestUri))
             {
@@ -420,7 +420,7 @@ namespace ManagedHttpListener
         private Uri? RequestUri => _requestUri;
         private bool SupportsWebSockets => true;
 
-        private class GetClientCertificateAsyncResult : LazyAsyncResult
+        private sealed class GetClientCertificateAsyncResult : LazyAsyncResult
         {
             public GetClientCertificateAsyncResult(object myObject, object? myState, AsyncCallback? myCallBack) : base(myObject, myState, myCallBack) { }
         }

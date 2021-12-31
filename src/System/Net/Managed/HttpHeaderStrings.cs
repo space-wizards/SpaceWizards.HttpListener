@@ -3,7 +3,7 @@
 
 namespace ManagedHttpListener
 {
-    internal class HttpHeaderStrings
+    internal sealed class HttpHeaderStrings
     {
         internal const string Charset = "charset=";
         internal const string NetCoreServerName = "Microsoft-NetCore/2.0";

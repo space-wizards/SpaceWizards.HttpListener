@@ -31,6 +31,7 @@
 //
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
 
 namespace ManagedHttpListener
@@ -82,7 +83,7 @@ namespace ManagedHttpListener
         }
 
         // Equals and GetHashCode are required to detect duplicates in HttpListenerPrefixCollection.
-        public override bool Equals(object? o)
+        public override bool Equals([NotNullWhen(true)] object? o)
         {
             ListenerPrefix? other = o as ListenerPrefix;
             if (other == null)
