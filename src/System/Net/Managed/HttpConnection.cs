@@ -40,12 +40,13 @@ using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace ManagedHttpListener
 {
     internal sealed class HttpConnection
     {
-        private static AsyncCallback s_onreadCallback = new AsyncCallback(OnRead);
+        private static readonly Action<Task<int>, object?> s_onreadCallback = OnRead;
         private const int BufferSize = 8192;
         private Socket? _socket;
         private Stream _stream;
@@ -201,7 +202,7 @@ namespace ManagedHttpListener
                 if (_reuses == 1)
                     _timeout = 15000;
                 _timer.Change(_timeout, Timeout.Infinite);
-                _stream.BeginRead(_buffer, 0, BufferSize, s_onreadCallback, this);
+                _stream.ReadAsync(_buffer, 0, BufferSize).ContinueWith(s_onreadCallback, this);
             }
             catch
             {
@@ -246,19 +247,19 @@ namespace ManagedHttpListener
             return _responseStream;
         }
 
-        private static void OnRead(IAsyncResult ares)
+        private static void OnRead(Task<int> task, object? state)
         {
-            HttpConnection cnc = (HttpConnection)ares.AsyncState!;
-            cnc.OnReadInternal(ares);
+            HttpConnection cnc = (HttpConnection)state!;
+            cnc.OnReadInternal(task);
         }
 
-        private void OnReadInternal(IAsyncResult ares)
+        private void OnReadInternal(Task<int> ares)
         {
             _timer.Change(Timeout.Infinite, Timeout.Infinite);
             int nread = -1;
             try
             {
-                nread = _stream.EndRead(ares);
+                nread = ares.Result;
                 _memoryStream!.Write(_buffer!, 0, nread);
                 if (_memoryStream.Length > 32768)
                 {
@@ -317,7 +318,8 @@ namespace ManagedHttpListener
                 listener.RegisterContext(_context);
                 return;
             }
-            _stream.BeginRead(_buffer!, 0, BufferSize, s_onreadCallback, this);
+
+            _stream.ReadAsync(_buffer!, 0, BufferSize).ContinueWith(s_onreadCallback, this);
         }
 
         private void RemoveConnection()
