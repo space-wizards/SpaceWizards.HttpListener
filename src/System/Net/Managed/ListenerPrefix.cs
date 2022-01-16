@@ -111,13 +111,13 @@ namespace ManagedHttpListener
             if (start_host >= length)
                 throw new ArgumentException(SR.net_listener_host);
 
-            int colon = uri.IndexOf(':', start_host, length - start_host);
+            int end_host = ServiceNameStore.FindEndOfHostname(uri, start_host);
             int root;
-            if (colon > 0)
+            if (uri[end_host] == ':')
             {
-                _host = uri.Substring(start_host, colon - start_host);
-                root = uri.IndexOf('/', colon, length - colon);
-                _port = (ushort)int.Parse(uri.AsSpan(colon + 1, root - colon - 1));
+                _host = uri.Substring(start_host, end_host - start_host);
+                root = uri.IndexOf('/', end_host, length - end_host);
+                _port = (ushort)int.Parse(uri.AsSpan(end_host + 1, root - end_host - 1));
                 _path = uri.Substring(root);
             }
             else

@@ -32,6 +32,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 
@@ -79,24 +80,12 @@ namespace ManagedHttpListener
 
         private static void AddPrefixInternal(string p, HttpListener listener)
         {
-            int start = p.IndexOf(':') + 3;
-            int colon = p.IndexOf(':', start);
-            if (colon != -1)
-            {
-                // root can't be -1 here, since we've already checked for ending '/' in ListenerPrefix.
-                int root = p.IndexOf('/', colon, p.Length - colon);
-                string portString = p.Substring(colon + 1, root - colon - 1);
-
-                int port;
-                if (!int.TryParse(portString, out port) || port <= 0 || port >= 65536)
-                {
-                    throw new HttpListenerException((int)HttpStatusCode.BadRequest, SR.net_invalid_port);
-                }
-            }
-
             ListenerPrefix lp = new ListenerPrefix(p);
             if (lp.Host != "*" && lp.Host != "+" && Uri.CheckHostName(lp.Host) == UriHostNameType.Unknown)
                 throw new HttpListenerException((int)HttpStatusCode.BadRequest, SR.net_listener_host);
+
+            if (lp.Port <= 0 || lp.Port >= 65536)
+                throw new HttpListenerException((int)HttpStatusCode.BadRequest, SR.net_invalid_port);
 
             if (lp.Path!.Contains('%'))
                 throw new HttpListenerException((int)HttpStatusCode.BadRequest, SR.net_invalid_path);
@@ -105,23 +94,28 @@ namespace ManagedHttpListener
                 throw new HttpListenerException((int)HttpStatusCode.BadRequest, SR.net_invalid_path);
 
             // listens on all the interfaces if host name cannot be parsed by IPAddress.
-            HttpEndPointListener epl = GetEPListener(lp.Host!, lp.Port, listener, lp.Secure);
-            epl.AddPrefix(lp, listener);
+            foreach (HttpEndPointListener epl in GetEPListener(lp.Host!, lp.Port, listener, lp.Secure))
+            {
+                epl.AddPrefix(lp, listener);
+            }
         }
 
-        private static HttpEndPointListener GetEPListener(string host, int port, HttpListener listener, bool secure)
+        private static IEnumerable<HttpEndPointListener> GetEPListener(string host, int port, HttpListener listener, bool secure)
         {
-            IPAddress addr;
+            IPAddress[] addresses;
             if (host == "*" || host == "+")
             {
-                addr = IPAddress.Any;
+                addresses = new []{IPAddress.Any, IPAddress.IPv6Any};
             }
             else
             {
+                if (host.StartsWith('[') && host.EndsWith(']'))
+                    host = host[1..^1];
+
                 const int NotSupportedErrorCode = 50;
                 try
                 {
-                    addr = Dns.GetHostAddresses(host)[0];
+                    addresses = Dns.GetHostAddresses(host);
                 }
                 catch
                 {
@@ -129,43 +123,46 @@ namespace ManagedHttpListener
                     throw new HttpListenerException(NotSupportedErrorCode, SR.net_listener_not_supported);
                 }
 
-                if (IPAddress.Any.Equals(addr))
+                if (addresses.Any(a => a.Equals(IPAddress.IPv6Any) || a.Equals(IPAddress.Any)))
                 {
                     // Don't support listening to 0.0.0.0, match windows behavior.
                     throw new HttpListenerException(NotSupportedErrorCode, SR.net_listener_not_supported);
                 }
             }
 
-            Dictionary<int, HttpEndPointListener>? p = null;
-            if (s_ipEndPoints.ContainsKey(addr))
+            foreach (var addr in addresses)
             {
-                p = s_ipEndPoints[addr];
-            }
-            else
-            {
-                p = new Dictionary<int, HttpEndPointListener>();
-                s_ipEndPoints[addr] = p;
-            }
-
-            HttpEndPointListener? epl = null;
-            if (p.ContainsKey(port))
-            {
-                epl = p[port];
-            }
-            else
-            {
-                try
+                Dictionary<int, HttpEndPointListener>? p = null;
+                if (s_ipEndPoints.ContainsKey(addr))
                 {
-                    epl = new HttpEndPointListener(listener, addr, port, secure);
+                    p = s_ipEndPoints[addr];
                 }
-                catch (SocketException ex)
+                else
                 {
-                    throw new HttpListenerException(ex.ErrorCode, ex.Message);
+                    p = new Dictionary<int, HttpEndPointListener>();
+                    s_ipEndPoints[addr] = p;
                 }
-                p[port] = epl;
-            }
 
-            return epl;
+                HttpEndPointListener? epl = null;
+                if (p.ContainsKey(port))
+                {
+                    epl = p[port];
+                }
+                else
+                {
+                    try
+                    {
+                        epl = new HttpEndPointListener(listener, addr, port, secure);
+                    }
+                    catch (SocketException ex)
+                    {
+                        throw new HttpListenerException(ex.ErrorCode, ex.Message);
+                    }
+                    p[port] = epl;
+                }
+
+                yield return epl;
+            }
         }
 
         public static void RemoveEndPoint(HttpEndPointListener epl, IPEndPoint ep)
@@ -211,8 +208,10 @@ namespace ManagedHttpListener
             if (lp.Path.IndexOf("//", StringComparison.Ordinal) != -1)
                 return;
 
-            HttpEndPointListener epl = GetEPListener(lp.Host!, lp.Port, listener, lp.Secure);
-            epl.RemovePrefix(lp, listener);
+            foreach (HttpEndPointListener epl in GetEPListener(lp.Host!, lp.Port, listener, lp.Secure))
+            {
+                epl.RemovePrefix(lp, listener);
+            }
         }
     }
 }

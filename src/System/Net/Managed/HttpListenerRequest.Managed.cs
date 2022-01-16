@@ -193,9 +193,7 @@ namespace ManagedHttpListener
             if (raw_uri != null)
                 host = raw_uri.Host;
 
-            int colon = host.IndexOf(':');
-            if (colon >= 0)
-                host = host.Substring(0, colon);
+            host = host.Substring(0, ServiceNameStore.FindEndOfHostname(host, 0));
 
             string base_uri = $"{RequestScheme}://{host}:{LocalEndPoint!.Port}";
 

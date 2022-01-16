@@ -133,25 +133,8 @@ namespace ManagedHttpListener
                 {
                     throw new ArgumentException(SR.net_listener_scheme, nameof(uriPrefix));
                 }
-                bool inSquareBrakets = false;
-                int j = i;
-                while (j < uriPrefix.Length && uriPrefix[j] != '/' && (uriPrefix[j] != ':' || inSquareBrakets))
-                {
-                    if (uriPrefix[j] == '[')
-                    {
-                        if (inSquareBrakets)
-                        {
-                            j = i;
-                            break;
-                        }
-                        inSquareBrakets = true;
-                    }
-                    if (inSquareBrakets && uriPrefix[j] == ']')
-                    {
-                        inSquareBrakets = false;
-                    }
-                    j++;
-                }
+
+                int j = ServiceNameStore.FindEndOfHostname(uriPrefix, i);
                 if (i == j)
                 {
                     throw new ArgumentException(SR.net_listener_host, nameof(uriPrefix));

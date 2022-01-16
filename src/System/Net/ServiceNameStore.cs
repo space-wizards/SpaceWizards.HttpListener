@@ -237,31 +237,38 @@ namespace ManagedHttpListener
             else if (allowInvalidUriStrings)
             {
                 int i = uriPrefix.IndexOf("://", StringComparison.Ordinal) + 3;
-                int j = i;
-
-                bool inSquareBrackets = false;
-                while (j < uriPrefix.Length && uriPrefix[j] != '/' && (uriPrefix[j] != ':' || inSquareBrackets))
-                {
-                    if (uriPrefix[j] == '[')
-                    {
-                        if (inSquareBrackets)
-                        {
-                            j = i;
-                            break;
-                        }
-                        inSquareBrackets = true;
-                    }
-                    if (inSquareBrackets && uriPrefix[j] == ']')
-                    {
-                        inSquareBrackets = false;
-                    }
-                    j++;
-                }
+                int j = FindEndOfHostname(uriPrefix, i);
 
                 return uriPrefix.Substring(i, j - i);
             }
 
             return null;
+        }
+
+        internal static int FindEndOfHostname(ReadOnlySpan<char> uriPrefix, int i)
+        {
+            int j = i;
+
+            bool inSquareBrackets = false;
+            while (j < uriPrefix.Length && uriPrefix[j] != '/' && (uriPrefix[j] != ':' || inSquareBrackets))
+            {
+                if (uriPrefix[j] == '[')
+                {
+                    if (inSquareBrackets)
+                    {
+                        j = i;
+                        break;
+                    }
+                    inSquareBrackets = true;
+                }
+                if (inSquareBrackets && uriPrefix[j] == ']')
+                {
+                    inSquareBrackets = false;
+                }
+                j++;
+            }
+
+            return j;
         }
 
         public string? BuildSimpleServiceName(string uriPrefix)
