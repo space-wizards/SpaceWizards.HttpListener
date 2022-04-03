@@ -455,7 +455,7 @@ namespace ManagedHttpListener
                 response.StatusCode = status;
                 response.ContentType = "text/html";
                 string? description = HttpStatusDescription.Get(status);
-                var str = msg != null ?
+                var str = !string.IsNullOrEmpty(msg) ?
                     $"<h1>{description} ({msg})</h1>" :
                     $"<h1>{description}</h1>";
 

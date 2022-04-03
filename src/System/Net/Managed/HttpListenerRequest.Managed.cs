@@ -213,7 +213,8 @@ namespace ManagedHttpListener
                 // 'identity' is not valid!
                 if (t_encoding != null && !_isChunked)
                 {
-                    _context.Connection.SendError(null, 501);
+                    _context.ErrorStatus = 501;
+                    _context.ErrorMessage = "";
                     return;
                 }
             }
@@ -223,7 +224,8 @@ namespace ManagedHttpListener
                 if (string.Equals(_method, "POST", StringComparison.OrdinalIgnoreCase) ||
                     string.Equals(_method, "PUT", StringComparison.OrdinalIgnoreCase))
                 {
-                    _context.Connection.SendError(null, 411);
+                    _context.ErrorStatus = 411;
+                    _context.ErrorMessage = "";
                     return;
                 }
             }
