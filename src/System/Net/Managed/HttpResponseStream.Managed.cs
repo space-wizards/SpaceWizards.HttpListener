@@ -30,6 +30,7 @@
 //
 
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Net.Sockets;
 using System.Text;
@@ -132,6 +133,8 @@ namespace ManagedHttpListener
         private static byte[] s_crlf = new byte[] { 13, 10 };
         private static byte[] GetChunkSizeBytes(int size, bool final)
         {
+            Debug.Assert(size != 0 || final, "Only final chunks can have a size of 0");
+
             string str = $"{size:x}\r\n{(final ? "\r\n" : "")}";
             return Encoding.ASCII.GetBytes(str);
         }
@@ -217,6 +220,18 @@ namespace ManagedHttpListener
                 return ares;
             }
 
+            if (size == 0)
+            {
+                HttpStreamAsyncResult ares = new HttpStreamAsyncResult(this);
+                ares._callback = cback;
+                ares._state = state;
+                ares._count = size;
+                ares._offset = offset;
+                ares._buffer = buffer;
+                ares.Complete();
+                return ares;
+            }
+
             byte[]? bytes = null;
             MemoryStream? ms = GetHeaders(false);
             bool chunked = _response.SendChunked;
@@ -264,6 +279,9 @@ namespace ManagedHttpListener
         private void EndWriteCore(IAsyncResult asyncResult)
         {
             if (_closed)
+                return;
+
+            if (asyncResult is HttpStreamAsyncResult { _buffer: not null, _count: 0 })
                 return;
 
             if (_ignore_errors)
