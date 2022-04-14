@@ -1,4 +1,4 @@
-# SpaceWizards.HttpListener
+# SpaceWizards.HttpListener [![Nuget](https://img.shields.io/nuget/v/SpaceWizards.HttpListener)](https://www.nuget.org/packages/SpaceWizards.HttpListener)
 
 A relatively lightweight and embeddable HTTP server for .NET. `SpaceWizards.HttpListener` is a maintained, updated, and unprofessionally butchered fork of the managed implementation of `System.Net.HttpListener` straight out of https://github.com/dotnet/runtime. This means:
 
