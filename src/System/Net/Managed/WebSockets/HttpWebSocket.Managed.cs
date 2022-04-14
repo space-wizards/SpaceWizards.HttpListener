@@ -6,7 +6,7 @@ using System.Net;
 using System.Net.WebSockets;
 using System.Threading.Tasks;
 
-namespace ManagedHttpListener.WebSockets
+namespace SpaceWizards.HttpListener.WebSockets
 {
     internal static partial class HttpWebSocket
     {

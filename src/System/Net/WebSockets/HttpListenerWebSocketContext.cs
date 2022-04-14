@@ -9,7 +9,7 @@ using System.Net;
 using System.Net.WebSockets;
 using System.Security.Principal;
 
-namespace ManagedHttpListener.WebSockets
+namespace SpaceWizards.HttpListener.WebSockets
 {
     public class HttpListenerWebSocketContext : WebSocketContext
     {

@@ -42,7 +42,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace ManagedHttpListener
+namespace SpaceWizards.HttpListener
 {
     internal sealed class HttpConnection
     {

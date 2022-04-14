@@ -4,7 +4,7 @@
 using System;
 using System.Runtime.Versioning;
 
-namespace ManagedHttpListener
+namespace SpaceWizards.HttpListener
 {
     public class HttpListenerTimeoutManager
     {

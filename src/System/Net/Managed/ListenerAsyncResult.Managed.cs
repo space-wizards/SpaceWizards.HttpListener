@@ -36,7 +36,7 @@ using System.Net;
 using System.Runtime.ExceptionServices;
 using System.Threading;
 
-namespace ManagedHttpListener
+namespace SpaceWizards.HttpListener
 {
     internal sealed class ListenerAsyncResult : IAsyncResult
     {

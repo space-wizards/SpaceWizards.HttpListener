@@ -7,7 +7,7 @@ using System.Reflection;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
 
-namespace ManagedHttpListener
+namespace SpaceWizards.HttpListener
 {
     // TODO https://github.com/dotnet/runtime/issues/19348
     internal static class CookieExtensions

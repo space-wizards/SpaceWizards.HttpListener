@@ -9,7 +9,7 @@ using System.Security.Authentication.ExtendedProtection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ManagedHttpListener
+namespace SpaceWizards.HttpListener
 {
     public sealed unsafe partial class HttpListener : IDisposable
     {

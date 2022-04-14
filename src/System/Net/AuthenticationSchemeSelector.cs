@@ -3,7 +3,7 @@
 
 using System.Net;
 
-namespace ManagedHttpListener
+namespace SpaceWizards.HttpListener
 {
     public delegate AuthenticationSchemes AuthenticationSchemeSelector(HttpListenerRequest httpRequest);
 }

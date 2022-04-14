@@ -34,7 +34,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
 
-namespace ManagedHttpListener
+namespace SpaceWizards.HttpListener
 {
     internal sealed class ListenerPrefix
     {

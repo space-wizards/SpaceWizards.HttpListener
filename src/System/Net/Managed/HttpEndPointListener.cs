@@ -37,7 +37,7 @@ using System.Net.Sockets;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 
-namespace ManagedHttpListener
+namespace SpaceWizards.HttpListener
 {
     internal sealed class HttpEndPointListener
     {

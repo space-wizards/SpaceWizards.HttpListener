@@ -9,7 +9,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 
-namespace ManagedHttpListener.WebSockets
+namespace SpaceWizards.HttpListener.WebSockets
 {
     internal static partial class HttpWebSocket
     {

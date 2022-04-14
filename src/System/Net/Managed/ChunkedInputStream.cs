@@ -33,7 +33,7 @@ using System.IO;
 using System.Net;
 using System.Runtime.InteropServices;
 
-namespace ManagedHttpListener
+namespace SpaceWizards.HttpListener
 {
     internal sealed class ChunkedInputStream : HttpRequestStream
     {

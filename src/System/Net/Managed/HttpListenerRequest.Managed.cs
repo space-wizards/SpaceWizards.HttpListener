@@ -41,7 +41,7 @@ using System.Security.Authentication.ExtendedProtection;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 
-namespace ManagedHttpListener
+namespace SpaceWizards.HttpListener
 {
     public sealed partial class HttpListenerRequest
     {

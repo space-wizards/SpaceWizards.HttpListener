@@ -35,7 +35,7 @@ using System.IO;
 using System.Net;
 using System.Text;
 
-namespace ManagedHttpListener
+namespace SpaceWizards.HttpListener
 {
     public sealed partial class HttpListenerResponse : IDisposable
     {

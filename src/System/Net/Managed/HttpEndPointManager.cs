@@ -36,7 +36,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 
-namespace ManagedHttpListener
+namespace SpaceWizards.HttpListener
 {
     internal sealed class HttpEndPointManager
     {

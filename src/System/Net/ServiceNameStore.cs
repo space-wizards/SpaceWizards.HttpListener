@@ -8,7 +8,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Net;
 
-namespace ManagedHttpListener
+namespace SpaceWizards.HttpListener
 {
     internal sealed class ServiceNameStore
     {

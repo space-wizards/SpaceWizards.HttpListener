@@ -7,7 +7,7 @@ using System.Net;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 
-namespace ManagedHttpListener
+namespace SpaceWizards.HttpListener
 {
     [Serializable]
     public class HttpListenerException : Win32Exception

@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Net;
 
-namespace ManagedHttpListener
+namespace SpaceWizards.HttpListener
 {
     // We don't use the cooked URL because http.sys unescapes all percent-encoded values. However,
     // we also can't just use the raw Uri, since http.sys supports not only Utf-8, but also ANSI/DBCS and

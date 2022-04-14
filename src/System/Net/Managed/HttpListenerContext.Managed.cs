@@ -9,10 +9,11 @@ using System.Net.WebSockets;
 using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
-using HttpListenerWebSocketContext = ManagedHttpListener.WebSockets.HttpListenerWebSocketContext;
-using HttpWebSocket = ManagedHttpListener.WebSockets.HttpWebSocket;
+using SpaceWizards.HttpListener.WebSockets;
+using HttpListenerWebSocketContext = SpaceWizards.HttpListener.WebSockets.HttpListenerWebSocketContext;
+using HttpWebSocket = SpaceWizards.HttpListener.WebSockets.HttpWebSocket;
 
-namespace ManagedHttpListener
+namespace SpaceWizards.HttpListener
 {
     public sealed unsafe partial class HttpListenerContext
     {
@@ -90,13 +91,13 @@ namespace ManagedHttpListener
             }
         }
 
-        public Task<HttpListenerWebSocketContext> AcceptWebSocketAsync(string? subProtocol, int receiveBufferSize, TimeSpan keepAliveInterval)
+        public Task<WebSockets.HttpListenerWebSocketContext> AcceptWebSocketAsync(string? subProtocol, int receiveBufferSize, TimeSpan keepAliveInterval)
         {
             return HttpWebSocket.AcceptWebSocketAsyncCore(this, subProtocol, receiveBufferSize, keepAliveInterval);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public Task<HttpListenerWebSocketContext> AcceptWebSocketAsync(string? subProtocol, int receiveBufferSize, TimeSpan keepAliveInterval, ArraySegment<byte> internalBuffer)
+        public Task<WebSockets.HttpListenerWebSocketContext> AcceptWebSocketAsync(string? subProtocol, int receiveBufferSize, TimeSpan keepAliveInterval, ArraySegment<byte> internalBuffer)
         {
             WebSocketValidate.ValidateArraySegment(internalBuffer, nameof(internalBuffer));
             HttpWebSocket.ValidateOptions(subProtocol, receiveBufferSize, HttpWebSocket.MinSendBufferSize, keepAliveInterval);

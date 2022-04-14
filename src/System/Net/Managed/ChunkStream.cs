@@ -40,7 +40,7 @@ using System.IO;
 using System.Net;
 using System.Text;
 
-namespace ManagedHttpListener
+namespace SpaceWizards.HttpListener
 {
     internal sealed class ChunkStream
     {

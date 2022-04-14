@@ -8,7 +8,7 @@ using System.IO;
 using System.Net;
 using System.Net.Security;
 
-namespace ManagedHttpListener
+namespace SpaceWizards.HttpListener
 {
     public sealed unsafe partial class HttpListener
     {

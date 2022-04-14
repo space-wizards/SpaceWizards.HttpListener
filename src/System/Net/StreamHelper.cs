@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 
-namespace ManagedHttpListener
+namespace SpaceWizards.HttpListener
 {
     internal static class StreamHelper
     {

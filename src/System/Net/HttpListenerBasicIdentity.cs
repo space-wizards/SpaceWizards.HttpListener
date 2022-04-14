@@ -3,7 +3,7 @@
 
 using System.Security.Principal;
 
-namespace ManagedHttpListener
+namespace SpaceWizards.HttpListener
 {
     public class HttpListenerBasicIdentity : GenericIdentity
     {

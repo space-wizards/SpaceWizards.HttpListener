@@ -12,9 +12,9 @@ using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
-using ManagedHttpListener.WebSockets;
+using SpaceWizards.HttpListener.WebSockets;
 
-namespace ManagedHttpListener
+namespace SpaceWizards.HttpListener
 {
     public sealed unsafe partial class HttpListenerRequest
     {

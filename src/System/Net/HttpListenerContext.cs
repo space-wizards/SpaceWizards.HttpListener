@@ -6,10 +6,10 @@ using System.Net;
 using System.Net.WebSockets;
 using System.Security.Principal;
 using System.Threading.Tasks;
-using ManagedHttpListener.WebSockets;
-using HttpListenerWebSocketContext = ManagedHttpListener.WebSockets.HttpListenerWebSocketContext;
+using SpaceWizards.HttpListener.WebSockets;
+using HttpListenerWebSocketContext = SpaceWizards.HttpListener.WebSockets.HttpListenerWebSocketContext;
 
-namespace ManagedHttpListener
+namespace SpaceWizards.HttpListener
 {
     public sealed unsafe partial class HttpListenerContext
     {
@@ -37,12 +37,12 @@ namespace ManagedHttpListener
             }
         }
 
-        public Task<HttpListenerWebSocketContext> AcceptWebSocketAsync(string? subProtocol)
+        public Task<WebSockets.HttpListenerWebSocketContext> AcceptWebSocketAsync(string? subProtocol)
         {
             return AcceptWebSocketAsync(subProtocol, HttpWebSocket.DefaultReceiveBufferSize, WebSocket.DefaultKeepAliveInterval);
         }
 
-        public Task<HttpListenerWebSocketContext> AcceptWebSocketAsync(string? subProtocol, TimeSpan keepAliveInterval)
+        public Task<WebSockets.HttpListenerWebSocketContext> AcceptWebSocketAsync(string? subProtocol, TimeSpan keepAliveInterval)
         {
             return AcceptWebSocketAsync(subProtocol, HttpWebSocket.DefaultReceiveBufferSize, keepAliveInterval);
         }
