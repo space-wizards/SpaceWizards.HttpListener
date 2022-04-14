@@ -8,7 +8,7 @@
     <EnableDefaultCompileItems>False</EnableDefaultCompileItems>
     <AssemblyName>SpaceWizards.HttpListener</AssemblyName>
     <Version>0.1.0</Version>
-    <Description>Fully managed and improved version of HttpListener, even on Windows!</Description>
+    <Description>Managed, maintained, updated, and unprofessionally butchered fork of System.Net.HttpListener</Description>
     
     <!-- NuGet stuff -->
     <Authors>.NET Foundation and Contributors</Authors>

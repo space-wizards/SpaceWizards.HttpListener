@@ -1,10 +1,17 @@
-# Managed & Maintained `System.Net.HttpListener`
+# SpaceWizards.HttpListener
 
-`System.Net.HttpListener` allows you to (relatively) easily get a HTTP server in  your .NET app, without having to include heavyweight ASP.NET Core and such. This is nice on paper, except...
+A relatively lightweight and embeddable HTTP server for .NET. `SpaceWizards.HttpListener` is a maintained, updated, and unprofessionally butchered fork of the managed implementation of `System.Net.HttpListener` straight out of https://github.com/dotnet/runtime. This means:
 
-* `HttpListener` is no longer maintained and is basically on "we provide this for compatibility only" in upstream. The API is very crufty and kinda sucks to use in some areas.
-* On Windows, `HttpListener` is implemented on top of `http.sys`. This means that (among many other things) it does not directly bind to a socket, and to bind to anything except `localhost`, you need admin privileges at least once. This kinda sucks for many programs.
-* Outside Windows, a fully managed implementation originally from Mono is used. This implementation is old, leaves some things to be desires and has a bunch of bugs too.
-* The fragmentation between these two backends means the API is a mess and many things don't work equally cross plat. All I'm saying is that if you want Windows built-in authentication and `http.sys` routing... well you probably don't want a cross plat library.
+* Will always use the fully managed implementation of `HttpListener`. On Windows, `System.Net.HttpListener` uses a different backend than Mac/Linux, namely the original `http.sys` backend. This functions very differently in behavior and bugs, which is unsuitable for cross-platform apps. Furthermore, binding something like `0.0.0.0:1212` with it requires admin even if a plain TCP socket would be fine otherwise.
+* Bugfixes over the .NET Runtime implementation, which is basically unmaintained short of being kept around for compatibility. The original Mono implementation Mac/Linux `HttpListener` uses is quite buggy.
+* You may expect some more modern innovations and maybe breaking changes. We're primarily maintaining this for [RobustToolbox](https://github.com/space-wizards/RobustToolbox) so there you go.
 
-This repo is a maintained, updated, and unprofessionally butchered fork of the original managed version, straight out of https://github.com/dotnet/runtime. It should work completely consistently on Windows/Linux. You may expect some more modern innovations and maybe breaking changes. We're primarily developing this for [RobustToolbox](https://github.com/space-wizards/RobustToolbox) so there you go.
+## Release Notes
+
+See [RELEASE-NOTES.md](./RELEASE-NOTES.md).
+
+## Examples
+
+Literally any of the tutorials for `System.Net.HttpListener` will probably do. There are also our usages in Robust:
+* [Simple HTTP server for game server control and querying APIs](https://github.com/space-wizards/RobustToolbox/tree/4d707c86cbfa5814cfa8b406dfd315fd1ad9948b/Robust.Server/ServerStatus)
+* [Alternative HTTP server implementation for prometheus-net](https://github.com/space-wizards/RobustToolbox/blob/4d707c86cbfa5814cfa8b406dfd315fd1ad9948b/Robust.Server/DataMetrics/MetricsManager.MetricsServer.cs)
