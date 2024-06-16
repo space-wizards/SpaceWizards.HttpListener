@@ -55,6 +55,9 @@ namespace SpaceWizards.HttpListener
         {
             _listener = listener;
 
+            _prefixes = new Dictionary<ListenerPrefix, HttpListener>();
+            _unregisteredConnections = new Dictionary<HttpConnection, HttpConnection>();
+
             if (secure)
             {
                 _secure = secure;
@@ -70,9 +73,6 @@ namespace SpaceWizards.HttpListener
             args.UserToken = this;
             args.Completed += OnAccept;
             Accept(args);
-
-            _prefixes = new Dictionary<ListenerPrefix, HttpListener>();
-            _unregisteredConnections = new Dictionary<HttpConnection, HttpConnection>();
         }
 
         internal HttpListener Listener
