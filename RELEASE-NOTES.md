@@ -2,9 +2,11 @@
 
 ## Master
 
-* Fix race condition exception if a connection came in at an exact moment during listener set up.
+## Current (0.1.1)
 
-## Current (0.1.0)
+* Fix race condition exception if a connection comes in at an exact moment during listener set up.
+
+## 0.1.0
 
 This is the first release. Changes over base `System.Net.HttpListener` (bugfixes are for the managed impl, of course):
 * Properly shut down sockets on connection close. This avoids connection resets in the middle of long downloads, if the server closes the connection before the data is fully received on the client. 
