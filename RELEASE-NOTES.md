@@ -2,6 +2,8 @@
 
 ## Master
 
+* Fix race condition exception if a connection came in at an exact moment during listener set up.
+
 ## Current (0.1.0)
 
 This is the first release. Changes over base `System.Net.HttpListener` (bugfixes are for the managed impl, of course):
