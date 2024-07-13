@@ -80,8 +80,10 @@ namespace SpaceWizards.HttpListener
             _epl = epl;
             _secure = secure;
             _cert = cert;
-            if (!secure)
+            if (secure == false)
+            {
                 _stream = new NetworkStream(sock, false);
+            }
             else
             {
 #pragma warning disable CA5359

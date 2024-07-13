@@ -38,28 +38,17 @@ namespace SpaceWizards.HttpListener
             _internalLock = new object();
             _defaultServiceNames = new ServiceNameStore();
 
-            _certificate = certificate;
             _timeoutManager = new HttpListenerTimeoutManager(this);
             _prefixes = new HttpListenerPrefixCollection(this);
 
             // default: no CBT checks on any platform (appcompat reasons); applies also to PolicyEnforcement
             // config element
             _extendedProtectionPolicy = new ExtendedProtectionPolicy(PolicyEnforcement.Never);
-        }
 
-        public HttpListener(string certPemFilePath, string? keyPemFilePath = default)
-        {
-            _state = State.Stopped;
-            _internalLock = new object();
-            _defaultServiceNames = new ServiceNameStore();
-
-            _certificate = X509Certificate2.CreateFromPemFile(certPemFilePath, keyPemFilePath);
-            _timeoutManager = new HttpListenerTimeoutManager(this);
-            _prefixes = new HttpListenerPrefixCollection(this);
-
-            // default: no CBT checks on any platform (appcompat reasons); applies also to PolicyEnforcement
-            // config element
-            _extendedProtectionPolicy = new ExtendedProtectionPolicy(PolicyEnforcement.Never);
+            if (certificate != null)
+            {
+                SetCertificate(certificate);
+            }
         }
 
         public AuthenticationSchemeSelector? AuthenticationSchemeSelectorDelegate
@@ -276,6 +265,11 @@ namespace SpaceWizards.HttpListener
                 (callback, state) => ((HttpListener)state!).BeginGetContext(callback, state),
                 iar => ((HttpListener)iar!.AsyncState!).EndGetContext(iar),
                 this);
+        }
+
+        public void SetCertificate(X509Certificate2 certificate)
+        {
+            _certificate = certificate;
         }
 
         public void Close()
