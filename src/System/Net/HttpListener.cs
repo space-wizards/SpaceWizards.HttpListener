@@ -6,6 +6,7 @@ using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Security.Authentication.ExtendedProtection;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -27,6 +28,7 @@ namespace SpaceWizards.HttpListener
         private AuthenticationSchemes _authenticationScheme = AuthenticationSchemes.Anonymous;
         private ExtendedProtectionSelector? _extendedProtectionSelectorDelegate;
         private string? _realm;
+        private X509Certificate2? _certificate;
 
         internal ICollection PrefixCollection => _uriPrefixes.Keys;
 
@@ -258,6 +260,11 @@ namespace SpaceWizards.HttpListener
                 (callback, state) => ((HttpListener)state!).BeginGetContext(callback, state),
                 iar => ((HttpListener)iar!.AsyncState!).EndGetContext(iar),
                 this);
+        }
+
+        public void SetCertificate(X509Certificate2 certificate)
+        {
+            _certificate = certificate;
         }
 
         public void Close()
