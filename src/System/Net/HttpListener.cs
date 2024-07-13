@@ -32,7 +32,7 @@ namespace SpaceWizards.HttpListener
 
         internal ICollection PrefixCollection => _uriPrefixes.Keys;
 
-        public HttpListener(X509Certificate2? certificate = null)
+        public HttpListener()
         {
             _state = State.Stopped;
             _internalLock = new object();
@@ -44,11 +44,6 @@ namespace SpaceWizards.HttpListener
             // default: no CBT checks on any platform (appcompat reasons); applies also to PolicyEnforcement
             // config element
             _extendedProtectionPolicy = new ExtendedProtectionPolicy(PolicyEnforcement.Never);
-
-            if (certificate != null)
-            {
-                SetCertificate(certificate);
-            }
         }
 
         public AuthenticationSchemeSelector? AuthenticationSchemeSelectorDelegate
