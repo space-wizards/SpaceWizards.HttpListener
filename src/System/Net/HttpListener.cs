@@ -6,6 +6,7 @@ using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Security.Authentication.ExtendedProtection;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -27,15 +28,32 @@ namespace SpaceWizards.HttpListener
         private AuthenticationSchemes _authenticationScheme = AuthenticationSchemes.Anonymous;
         private ExtendedProtectionSelector? _extendedProtectionSelectorDelegate;
         private string? _realm;
+        private X509Certificate2? _certificate;
 
         internal ICollection PrefixCollection => _uriPrefixes.Keys;
 
-        public HttpListener()
+        public HttpListener(X509Certificate2? certificate = null)
         {
             _state = State.Stopped;
             _internalLock = new object();
             _defaultServiceNames = new ServiceNameStore();
 
+            _certificate = certificate;
+            _timeoutManager = new HttpListenerTimeoutManager(this);
+            _prefixes = new HttpListenerPrefixCollection(this);
+
+            // default: no CBT checks on any platform (appcompat reasons); applies also to PolicyEnforcement
+            // config element
+            _extendedProtectionPolicy = new ExtendedProtectionPolicy(PolicyEnforcement.Never);
+        }
+
+        public HttpListener(string certPemFilePath, string? keyPemFilePath = default)
+        {
+            _state = State.Stopped;
+            _internalLock = new object();
+            _defaultServiceNames = new ServiceNameStore();
+
+            _certificate = X509Certificate2.CreateFromPemFile(certPemFilePath, keyPemFilePath);
             _timeoutManager = new HttpListenerTimeoutManager(this);
             _prefixes = new HttpListenerPrefixCollection(this);
 

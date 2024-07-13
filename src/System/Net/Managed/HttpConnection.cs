@@ -80,10 +80,8 @@ namespace SpaceWizards.HttpListener
             _epl = epl;
             _secure = secure;
             _cert = cert;
-            if (secure == false)
-            {
+            if (!secure)
                 _stream = new NetworkStream(sock, false);
-            }
             else
             {
 #pragma warning disable CA5359
@@ -94,11 +92,8 @@ namespace SpaceWizards.HttpListener
                         return true;
                     }
 
-                    var c2 = c as X509Certificate2;
-                    if (c2 == null)
-                    {
-                        c2 = new X509Certificate2(c.GetRawCertData());
-                    }
+                    X509Certificate2? c2 = c as X509Certificate2;
+                    c2 ??= new X509Certificate2(c.GetRawCertData());
 
                     _clientCert = c2;
                     _clientCertErrors = new int[] { (int)e };
@@ -110,9 +105,7 @@ namespace SpaceWizards.HttpListener
             }
 
             _timer = new Timer(OnTimeout, null, Timeout.Infinite, Timeout.Infinite);
-            if (_sslStream != null) {
-                _sslStream.AuthenticateAsServer (_cert, true, (SslProtocols)ServicePointManager.SecurityProtocol, false);
-            }
+            _sslStream?.AuthenticateAsServer(_cert, false, (SslProtocols)ServicePointManager.SecurityProtocol, false);
             Init();
         }
 

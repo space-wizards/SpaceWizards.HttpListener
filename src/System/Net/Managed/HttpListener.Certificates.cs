@@ -19,8 +19,7 @@ namespace SpaceWizards.HttpListener
 
         internal X509Certificate? LoadCertificateAndKey(IPAddress addr, int port)
         {
-            // TODO https://github.com/dotnet/runtime/issues/19752: Implement functionality to read SSL certificate.
-            return null;
+            return _certificate;
         }
     }
 }
