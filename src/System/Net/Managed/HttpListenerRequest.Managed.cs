@@ -221,12 +221,15 @@ namespace SpaceWizards.HttpListener
 
             if (!_isChunked && !_clSet)
             {
-                if (string.Equals(_method, "POST", StringComparison.OrdinalIgnoreCase) ||
-                    string.Equals(_method, "PUT", StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(_method, "PUT", StringComparison.OrdinalIgnoreCase))
                 {
                     _context.ErrorStatus = 411;
                     _context.ErrorMessage = "";
                     return;
+                }
+                else if (string.Equals(_method, "POST", StringComparison.OrdinalIgnoreCase))
+                {
+                    _contentLength = 0; // for safety we explicitly set it to 0.
                 }
             }
 
