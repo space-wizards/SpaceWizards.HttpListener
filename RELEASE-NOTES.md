@@ -2,7 +2,12 @@
 
 ## Master
 
-## Current (0.1.1)
+## Current (0.2.0)
+
+* `HttpListener.SetCertificate()` allows specifying a certificate for HTTPS prefixes.
+* POST requests with an empty request body no longer always respond with a 411 error.
+
+## 0.1.1
 
 * Fix race condition exception if a connection comes in at an exact moment during listener set up.
 
