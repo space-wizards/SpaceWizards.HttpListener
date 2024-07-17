@@ -280,8 +280,11 @@ namespace SpaceWizards.HttpListener
         {
             if (_closed)
                 return;
-
+#if NET5_0_OR_GREATER
             if (asyncResult is HttpStreamAsyncResult { _buffer: not null, _count: 0 })
+#else
+            if (asyncResult is HttpStreamAsyncResult result && result._buffer != null && result._count == 0)
+#endif
                 return;
 
             if (_ignore_errors)

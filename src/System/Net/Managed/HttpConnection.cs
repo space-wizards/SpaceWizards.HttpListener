@@ -125,9 +125,10 @@ namespace SpaceWizards.HttpListener
         {
             get { return _sslStream; }
         }
-
+#if NET5_0_OR_GREATER
         [MemberNotNull(nameof(_memoryStream))]
         [MemberNotNull(nameof(_context))]
+#endif
         private void Init()
         {
             _contextBound = false;

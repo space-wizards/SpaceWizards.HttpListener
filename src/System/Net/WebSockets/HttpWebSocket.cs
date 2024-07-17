@@ -25,8 +25,10 @@ namespace SpaceWizards.HttpListener.WebSockets
             byte[] toHash = Encoding.UTF8.GetBytes(acceptString);
 
             // SHA1 used only for hashing purposes, not for crypto. Check here for FIPS compat.
-            byte[] hash = SHA1.HashData(toHash);
-            return Convert.ToBase64String(hash);
+            using (SHA1 sha1 = SHA1.Create())
+            {
+                return Convert.ToBase64String(sha1.ComputeHash(toHash));
+            }
         }
 
         // return value here signifies if a Sec-WebSocket-Protocol header should be returned by the server.
@@ -58,8 +60,17 @@ namespace SpaceWizards.HttpListener.WebSockets
 
             // here, we know that the client has specified something, it's not empty
             // and the server has specified exactly one protocol
-
+#if NET5_0_OR_GREATER
             string[] requestProtocols = clientSecWebSocketProtocol.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+#else
+            string[] rawRequestProtocols = clientSecWebSocketProtocol.Split(',', StringSplitOptions.RemoveEmptyEntries);
+            string[] requestProtocols = new string[rawRequestProtocols.Length];
+
+            for (int i = 0; i < rawRequestProtocols.Length; i++)
+            {
+                requestProtocols[i] = rawRequestProtocols[i].Trim();
+            }
+#endif
             acceptProtocol = subProtocol;
 
             // client specified protocols, serverOptions has exactly 1 non-empty entry. Check that
