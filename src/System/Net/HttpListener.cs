@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Security.Authentication.ExtendedProtection;
@@ -28,7 +29,7 @@ namespace SpaceWizards.HttpListener
         private AuthenticationSchemes _authenticationScheme = AuthenticationSchemes.Anonymous;
         private ExtendedProtectionSelector? _extendedProtectionSelectorDelegate;
         private string? _realm;
-        private X509Certificate2? _certificate;
+        private Dictionary<int, X509Certificate2>? _certificateCache;
 
         internal ICollection PrefixCollection => _uriPrefixes.Keys;
 
@@ -262,9 +263,24 @@ namespace SpaceWizards.HttpListener
                 this);
         }
 
-        public void SetCertificate(X509Certificate2 certificate)
+        public void SetCertificate(int port, X509Certificate2 certificate)
         {
-            _certificate = certificate;
+            lock (_internalLock)
+            {
+                if (_certificateCache == null)
+                {
+                    _certificateCache = new Dictionary<int, X509Certificate2>();
+                }
+
+                if (!_certificateCache.ContainsKey(port))
+                {
+                    _certificateCache.Add(port, certificate);
+                }
+                else
+                {
+                    _certificateCache[port] = certificate;
+                }
+            }
         }
 
         public void Close()
