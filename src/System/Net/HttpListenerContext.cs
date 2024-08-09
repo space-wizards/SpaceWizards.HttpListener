@@ -7,19 +7,18 @@ using System.Net.WebSockets;
 using System.Security.Principal;
 using System.Threading.Tasks;
 using SpaceWizards.HttpListener.WebSockets;
-using HttpListenerWebSocketContext = SpaceWizards.HttpListener.WebSockets.HttpListenerWebSocketContext;
 
 namespace SpaceWizards.HttpListener
 {
     public sealed unsafe partial class HttpListenerContext
     {
-        internal HttpListener? _listener;
-        private HttpListenerResponse? _response;
-        private IPrincipal? _user;
+        internal HttpListener _listener;
+        private HttpListenerResponse _response;
+        private IPrincipal _user;
 
         public HttpListenerRequest Request { get; }
 
-        public IPrincipal? User => _user;
+        public IPrincipal User => _user;
 
         // This can be used to cache the results of HttpListener.AuthenticationSchemeSelectorDelegate.
         internal AuthenticationSchemes AuthenticationSchemes { get; set; }
@@ -37,14 +36,16 @@ namespace SpaceWizards.HttpListener
             }
         }
 
-        public Task<WebSockets.HttpListenerWebSocketContext> AcceptWebSocketAsync(string? subProtocol)
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+        public Task<WebSockets.HttpListenerWebSocketContext> AcceptWebSocketAsync(string subProtocol)
         {
             return AcceptWebSocketAsync(subProtocol, HttpWebSocket.DefaultReceiveBufferSize, WebSocket.DefaultKeepAliveInterval);
         }
 
-        public Task<WebSockets.HttpListenerWebSocketContext> AcceptWebSocketAsync(string? subProtocol, TimeSpan keepAliveInterval)
+        public Task<WebSockets.HttpListenerWebSocketContext> AcceptWebSocketAsync(string subProtocol, TimeSpan keepAliveInterval)
         {
             return AcceptWebSocketAsync(subProtocol, HttpWebSocket.DefaultReceiveBufferSize, keepAliveInterval);
         }
+#endif
     }
 }

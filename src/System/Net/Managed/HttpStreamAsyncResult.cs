@@ -38,17 +38,17 @@ namespace SpaceWizards.HttpListener
     internal sealed class HttpStreamAsyncResult : IAsyncResult
     {
         private object _locker = new object();
-        private ManualResetEvent? _handle;
+        private ManualResetEvent _handle;
         private bool _completed;
 
         internal readonly object _parent;
-        internal byte[]? _buffer;
+        internal byte[] _buffer;
         internal int _offset;
         internal int _count;
-        internal AsyncCallback? _callback;
-        internal object? _state;
+        internal AsyncCallback _callback;
+        internal object _state;
         internal int _synchRead;
-        internal Exception? _error;
+        internal Exception _error;
         internal bool _endCalled;
 
         internal HttpStreamAsyncResult(object parent)
@@ -78,7 +78,7 @@ namespace SpaceWizards.HttpListener
             }
         }
 
-        public object? AsyncState
+        public object AsyncState
         {
             get { return _state; }
         }

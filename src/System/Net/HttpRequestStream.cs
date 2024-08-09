@@ -29,13 +29,13 @@ namespace SpaceWizards.HttpListener
             return ReadCore(buffer, offset, count);
         }
 
-        public override IAsyncResult BeginRead(byte[] buffer, int offset, int count, AsyncCallback? callback, object? state)
+        public override IAsyncResult BeginRead(byte[] buffer, int offset, int count, AsyncCallback callback, object state)
         {
             if (NetEventSource.Log.IsEnabled()) NetEventSource.Info(this, "buffer.Length:" + buffer.Length + " count:" + count + " offset:" + offset);
 
             StreamHelper.ValidateBufferArguments(buffer, offset, count);
 
-            return BeginReadCore(buffer, offset, count, callback, state)!;
+            return BeginReadCore(buffer, offset, count, callback, state);
         }
 
         public override void Flush() { }
@@ -55,7 +55,7 @@ namespace SpaceWizards.HttpListener
 
         public override void Write(byte[] buffer, int offset, int count) => throw new InvalidOperationException(SR.net_readonlystream);
 
-        public override IAsyncResult BeginWrite(byte[] buffer, int offset, int count, AsyncCallback? callback, object? state)
+        public override IAsyncResult BeginWrite(byte[] buffer, int offset, int count, AsyncCallback callback, object state)
         {
             throw new InvalidOperationException(SR.net_readonlystream);
         }

@@ -7,7 +7,6 @@
 //#define DEBUG_NETEVENTSOURCE_MISUSE
 #endif
 
-#nullable enable
 using System.Collections;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
@@ -95,7 +94,7 @@ namespace System.Net
         /// <param name="formattableString">The message to be logged.</param>
         /// <param name="memberName">The calling member.</param>
         [NonEvent]
-        public static void Info(object? thisOrContextObject, FormattableString? formattableString = null, [CallerMemberName] string? memberName = null)
+        public static void Info(object thisOrContextObject, FormattableString formattableString = null, [CallerMemberName] string memberName = null)
         {
             DebugValidateArg(thisOrContextObject);
             DebugValidateArg(formattableString);
@@ -107,7 +106,7 @@ namespace System.Net
         /// <param name="message">The message to be logged.</param>
         /// <param name="memberName">The calling member.</param>
         [NonEvent]
-        public static void Info(object? thisOrContextObject, object? message, [CallerMemberName] string? memberName = null)
+        public static void Info(object thisOrContextObject, object message, [CallerMemberName] string memberName = null)
         {
             DebugValidateArg(thisOrContextObject);
             DebugValidateArg(message);
@@ -115,7 +114,7 @@ namespace System.Net
         }
 
         [Event(InfoEventId, Level = EventLevel.Informational, Keywords = Keywords.Default)]
-        private void Info(string thisOrContextObject, string? memberName, string? message) =>
+        private void Info(string thisOrContextObject, string memberName, string message) =>
             WriteEvent(InfoEventId, thisOrContextObject, memberName ?? MissingMember, message);
         #endregion
 
@@ -125,7 +124,7 @@ namespace System.Net
         /// <param name="formattableString">The message to be logged.</param>
         /// <param name="memberName">The calling member.</param>
         [NonEvent]
-        public static void Error(object? thisOrContextObject, FormattableString formattableString, [CallerMemberName] string? memberName = null)
+        public static void Error(object thisOrContextObject, FormattableString formattableString, [CallerMemberName] string memberName = null)
         {
             DebugValidateArg(thisOrContextObject);
             DebugValidateArg(formattableString);
@@ -137,7 +136,7 @@ namespace System.Net
         /// <param name="message">The message to be logged.</param>
         /// <param name="memberName">The calling member.</param>
         [NonEvent]
-        public static void Error(object? thisOrContextObject, object message, [CallerMemberName] string? memberName = null)
+        public static void Error(object thisOrContextObject, object message, [CallerMemberName] string memberName = null)
         {
             DebugValidateArg(thisOrContextObject);
             DebugValidateArg(message);
@@ -145,7 +144,7 @@ namespace System.Net
         }
 
         [Event(ErrorEventId, Level = EventLevel.Error, Keywords = Keywords.Default)]
-        private void ErrorMessage(string thisOrContextObject, string? memberName, string? message) =>
+        private void ErrorMessage(string thisOrContextObject, string memberName, string message) =>
             WriteEvent(ErrorEventId, thisOrContextObject, memberName ?? MissingMember, message);
         #endregion
 
@@ -155,7 +154,7 @@ namespace System.Net
         /// <param name="formattableString">The message to be logged.</param>
         /// <param name="memberName">The calling member.</param>
         [NonEvent]
-        public static void Verbose(object? thisOrContextObject, FormattableString formattableString, [CallerMemberName] string? memberName = null)
+        public static void Verbose(object thisOrContextObject, FormattableString formattableString, [CallerMemberName] string memberName = null)
         {
             DebugValidateArg(thisOrContextObject);
             DebugValidateArg(formattableString);
@@ -167,7 +166,7 @@ namespace System.Net
         /// <param name="message">The message to be logged.</param>
         /// <param name="memberName">The calling member.</param>
         [NonEvent]
-        public static void Verbose(object? thisOrContextObject, object message, [CallerMemberName] string? memberName = null)
+        public static void Verbose(object thisOrContextObject, object message, [CallerMemberName] string memberName = null)
         {
             DebugValidateArg(thisOrContextObject);
             DebugValidateArg(message);
@@ -175,7 +174,7 @@ namespace System.Net
         }
 
         [Event(ErrorEventId, Level = EventLevel.Verbose, Keywords = Keywords.Default)]
-        private void VerboseMessage(string thisOrContextObject, string? memberName, string? message) =>
+        private void VerboseMessage(string thisOrContextObject, string memberName, string message) =>
             WriteEvent(ErrorEventId, thisOrContextObject, memberName ?? MissingMember, message);
         #endregion
 
@@ -185,7 +184,7 @@ namespace System.Net
         /// <param name="buffer">The buffer to be logged.</param>
         /// <param name="memberName">The calling member.</param>
         [NonEvent]
-        public static void DumpBuffer(object? thisOrContextObject, byte[] buffer, [CallerMemberName] string? memberName = null)
+        public static void DumpBuffer(object thisOrContextObject, byte[] buffer, [CallerMemberName] string memberName = null)
         {
             DumpBuffer(thisOrContextObject, buffer, 0, buffer.Length, memberName);
         }
@@ -197,7 +196,7 @@ namespace System.Net
         /// <param name="count">The number of bytes to log.</param>
         /// <param name="memberName">The calling member.</param>
         [NonEvent]
-        public static void DumpBuffer(object? thisOrContextObject, byte[] buffer, int offset, int count, [CallerMemberName] string? memberName = null)
+        public static void DumpBuffer(object thisOrContextObject, byte[] buffer, int offset, int count, [CallerMemberName] string memberName = null)
         {
             if (IsEnabled && offset >= 0 && offset <= buffer.Length - count)
             {
@@ -220,7 +219,7 @@ namespace System.Net
         /// <param name="count">The number of bytes to log.</param>
         /// <param name="memberName">The calling member.</param>
         [NonEvent]
-        public static unsafe void DumpBuffer(object? thisOrContextObject, IntPtr bufferPtr, int count, [CallerMemberName] string? memberName = null)
+        public static unsafe void DumpBuffer(object thisOrContextObject, IntPtr bufferPtr, int count, [CallerMemberName] string memberName = null)
         {
             Debug.Assert(bufferPtr != IntPtr.Zero);
             Debug.Assert(count >= 0);
@@ -237,7 +236,7 @@ namespace System.Net
         }
 
         [Event(DumpArrayEventId, Level = EventLevel.Verbose, Keywords = Keywords.Debug)]
-        private void DumpBuffer(string thisOrContextObject, string? memberName, byte[] buffer) =>
+        private void DumpBuffer(string thisOrContextObject, string memberName, byte[] buffer) =>
             WriteEvent(DumpArrayEventId, thisOrContextObject, memberName ?? MissingMember, buffer);
         #endregion
 
@@ -247,7 +246,7 @@ namespace System.Net
         /// <param name="second">The second object.</param>
         /// <param name="memberName">The calling member.</param>
         [NonEvent]
-        public static void Associate(object first, object second, [CallerMemberName] string? memberName = null)
+        public static void Associate(object first, object second, [CallerMemberName] string memberName = null)
         {
             DebugValidateArg(first);
             DebugValidateArg(second);
@@ -260,7 +259,7 @@ namespace System.Net
         /// <param name="second">The second object.</param>
         /// <param name="memberName">The calling member.</param>
         [NonEvent]
-        public static void Associate(object? thisOrContextObject, object first, object second, [CallerMemberName] string? memberName = null)
+        public static void Associate(object thisOrContextObject, object first, object second, [CallerMemberName] string memberName = null)
         {
             DebugValidateArg(thisOrContextObject);
             DebugValidateArg(first);
@@ -269,14 +268,14 @@ namespace System.Net
         }
 
         [Event(AssociateEventId, Level = EventLevel.Informational, Keywords = Keywords.Default, Message = "[{2}]<-->[{3}]")]
-        private void Associate(string thisOrContextObject, string? memberName, string first, string second) =>
+        private void Associate(string thisOrContextObject, string memberName, string first, string second) =>
             WriteEvent(AssociateEventId, thisOrContextObject, memberName ?? MissingMember, first, second);
         #endregion
         #endregion
 
         #region Helpers
         [Conditional("DEBUG_NETEVENTSOURCE_MISUSE")]
-        private static void DebugValidateArg(object? arg)
+        private static void DebugValidateArg(object arg)
         {
             if (!IsEnabled)
             {
@@ -286,7 +285,7 @@ namespace System.Net
         }
 
         [Conditional("DEBUG_NETEVENTSOURCE_MISUSE")]
-        private static void DebugValidateArg(FormattableString? arg)
+        private static void DebugValidateArg(FormattableString arg)
         {
             Debug.Assert(IsEnabled || arg == null, $"Should not be formatting FormattableString \"{arg}\" if tracing isn't enabled");
         }
@@ -295,13 +294,13 @@ namespace System.Net
             Log.IsEnabled();
 
         [NonEvent]
-        public static string IdOf(object? value) => value != null ? value.GetType().Name + "#" + GetHashCode(value) : NullInstance;
+        public static string IdOf(object value) => value != null ? value.GetType().Name + "#" + GetHashCode(value) : NullInstance;
 
         [NonEvent]
-        public static int GetHashCode(object? value) => value?.GetHashCode() ?? 0;
+        public static int GetHashCode(object value) => value?.GetHashCode() ?? 0;
 
         [NonEvent]
-        public static object Format(object? value)
+        public static object Format(object value)
         {
             // If it's null, return a known string for null values
             if (value == null)
@@ -310,7 +309,7 @@ namespace System.Net
             }
 
             // Give another partial implementation a chance to provide its own string representation
-            string? result = null;
+            string result = null;
             AdditionalCustomizedToString(value, ref result);
             if (result != null)
             {
@@ -343,7 +342,7 @@ namespace System.Net
 
             // If the string representation of the instance would just be its type name,
             // use its id instead.
-            string? toString = value.ToString();
+            string toString = value.ToString();
             if (toString == null || toString == value.GetType().FullName)
             {
                 return IdOf(value);
@@ -363,7 +362,7 @@ namespace System.Net
                 case 2: return string.Format(s.Format, Format(s.GetArgument(0)), Format(s.GetArgument(1)));
                 case 3: return string.Format(s.Format, Format(s.GetArgument(0)), Format(s.GetArgument(1)), Format(s.GetArgument(2)));
                 default:
-                    object?[] args = s.GetArguments();
+                    object[] args = s.GetArguments();
                     object[] formattedArgs = new object[args.Length];
                     for (int i = 0; i < args.Length; i++)
                     {
@@ -373,13 +372,13 @@ namespace System.Net
             }
         }
 
-        static partial void AdditionalCustomizedToString<T>(T value, ref string? result);
+        static partial void AdditionalCustomizedToString<T>(T value, ref string result);
         #endregion
 
         #region Custom WriteEvent overloads
 
         [NonEvent]
-        private unsafe void WriteEvent(int eventId, string? arg1, string? arg2, string? arg3, string? arg4)
+        private unsafe void WriteEvent(int eventId, string arg1, string arg2, string arg3, string arg4)
         {
             if (IsEnabled())
             {
@@ -423,7 +422,7 @@ namespace System.Net
         }
 
         [NonEvent]
-        private unsafe void WriteEvent(int eventId, string? arg1, string? arg2, byte[]? arg3)
+        private unsafe void WriteEvent(int eventId, string arg1, string arg2, byte[] arg3)
         {
             if (IsEnabled())
             {
@@ -466,7 +465,7 @@ namespace System.Net
         }
 
         [NonEvent]
-        private unsafe void WriteEvent(int eventId, string? arg1, int arg2, int arg3, int arg4)
+        private unsafe void WriteEvent(int eventId, string arg1, int arg2, int arg3, int arg4)
         {
             if (IsEnabled())
             {
@@ -504,7 +503,7 @@ namespace System.Net
         }
 
         [NonEvent]
-        private unsafe void WriteEvent(int eventId, string? arg1, int arg2, string? arg3)
+        private unsafe void WriteEvent(int eventId, string arg1, int arg2, string arg3)
         {
             if (IsEnabled())
             {
@@ -539,7 +538,7 @@ namespace System.Net
         }
 
         [NonEvent]
-        private unsafe void WriteEvent(int eventId, string? arg1, string? arg2, int arg3)
+        private unsafe void WriteEvent(int eventId, string arg1, string arg2, int arg3)
         {
             if (IsEnabled())
             {
@@ -574,7 +573,7 @@ namespace System.Net
         }
 
         [NonEvent]
-        private unsafe void WriteEvent(int eventId, string? arg1, string? arg2, string? arg3, int arg4)
+        private unsafe void WriteEvent(int eventId, string arg1, string arg2, string arg3, int arg4)
         {
             if (IsEnabled())
             {

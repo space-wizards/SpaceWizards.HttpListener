@@ -87,14 +87,14 @@ namespace SpaceWizards.HttpListener
             if (lp.Port <= 0 || lp.Port >= 65536)
                 throw new HttpListenerException((int)HttpStatusCode.BadRequest, SR.net_invalid_port);
 
-            if (lp.Path!.Contains('%'))
+            if (lp.Path.Contains('%'))
                 throw new HttpListenerException((int)HttpStatusCode.BadRequest, SR.net_invalid_path);
 
             if (lp.Path.IndexOf("//", StringComparison.Ordinal) != -1)
                 throw new HttpListenerException((int)HttpStatusCode.BadRequest, SR.net_invalid_path);
 
             // listens on all the interfaces if host name cannot be parsed by IPAddress.
-            foreach (HttpEndPointListener epl in GetEPListener(lp.Host!, lp.Port, listener, lp.Secure))
+            foreach (HttpEndPointListener epl in GetEPListener(lp.Host, lp.Port, listener, lp.Secure))
             {
                 epl.AddPrefix(lp, listener);
             }
@@ -109,8 +109,8 @@ namespace SpaceWizards.HttpListener
             }
             else
             {
-                if (host.StartsWith('[') && host.EndsWith(']'))
-                    host = host[1..^1];
+                if (host.StartsWith("[") && host.EndsWith("]"))
+                    host = host.Substring(1, host.Length - 2);
 
                 const int NotSupportedErrorCode = 50;
                 try
@@ -132,7 +132,7 @@ namespace SpaceWizards.HttpListener
 
             foreach (var addr in addresses)
             {
-                Dictionary<int, HttpEndPointListener>? p = null;
+                Dictionary<int, HttpEndPointListener> p = null;
                 if (s_ipEndPoints.ContainsKey(addr))
                 {
                     p = s_ipEndPoints[addr];
@@ -143,7 +143,7 @@ namespace SpaceWizards.HttpListener
                     s_ipEndPoints[addr] = p;
                 }
 
-                HttpEndPointListener? epl = null;
+                HttpEndPointListener epl = null;
                 if (p.ContainsKey(port))
                 {
                     epl = p[port];
@@ -169,7 +169,7 @@ namespace SpaceWizards.HttpListener
         {
             lock ((s_ipEndPoints as ICollection).SyncRoot)
             {
-                Dictionary<int, HttpEndPointListener>? p = null;
+                Dictionary<int, HttpEndPointListener> p = null;
                 p = s_ipEndPoints[ep.Address];
                 p.Remove(ep.Port);
                 if (p.Count == 0)
@@ -202,13 +202,13 @@ namespace SpaceWizards.HttpListener
         private static void RemovePrefixInternal(string prefix, HttpListener listener)
         {
             ListenerPrefix lp = new ListenerPrefix(prefix);
-            if (lp.Path!.Contains('%'))
+            if (lp.Path.Contains('%'))
                 return;
 
             if (lp.Path.IndexOf("//", StringComparison.Ordinal) != -1)
                 return;
 
-            foreach (HttpEndPointListener epl in GetEPListener(lp.Host!, lp.Port, listener, lp.Secure))
+            foreach (HttpEndPointListener epl in GetEPListener(lp.Host, lp.Port, listener, lp.Secure))
             {
                 epl.RemovePrefix(lp, listener);
             }

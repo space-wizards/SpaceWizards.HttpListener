@@ -3,7 +3,9 @@
 
 using System;
 using System.Collections;
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP2_1_OR_GREATER
 using System.Diagnostics.CodeAnalysis;
+#endif
 using System.Net;
 using System.Security.Authentication.ExtendedProtection;
 using System.Security.Cryptography.X509Certificates;
@@ -24,11 +26,11 @@ namespace SpaceWizards.HttpListener
         private readonly ServiceNameStore _defaultServiceNames;
         private readonly HttpListenerTimeoutManager _timeoutManager;
         private ExtendedProtectionPolicy _extendedProtectionPolicy;
-        private AuthenticationSchemeSelector? _authenticationDelegate;
+        private AuthenticationSchemeSelector _authenticationDelegate;
         private AuthenticationSchemes _authenticationScheme = AuthenticationSchemes.Anonymous;
-        private ExtendedProtectionSelector? _extendedProtectionSelectorDelegate;
-        private string? _realm;
-        private X509Certificate2? _certificate;
+        private ExtendedProtectionSelector _extendedProtectionSelectorDelegate;
+        private string _realm;
+        private X509Certificate2 _certificate;
 
         internal ICollection PrefixCollection => _uriPrefixes.Keys;
 
@@ -46,7 +48,7 @@ namespace SpaceWizards.HttpListener
             _extendedProtectionPolicy = new ExtendedProtectionPolicy(PolicyEnforcement.Never);
         }
 
-        public AuthenticationSchemeSelector? AuthenticationSchemeSelectorDelegate
+        public AuthenticationSchemeSelector AuthenticationSchemeSelectorDelegate
         {
             get => _authenticationDelegate;
             set
@@ -56,8 +58,10 @@ namespace SpaceWizards.HttpListener
             }
         }
 
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP2_1_OR_GREATER
         [DisallowNull]
-        public ExtendedProtectionSelector? ExtendedProtectionSelectorDelegate
+#endif
+        public ExtendedProtectionSelector ExtendedProtectionSelectorDelegate
         {
             get => _extendedProtectionSelectorDelegate;
             set
@@ -114,7 +118,7 @@ namespace SpaceWizards.HttpListener
 
         internal void AddPrefix(string uriPrefix)
         {
-            string? registeredPrefix = null;
+            string registeredPrefix = null;
             try
             {
                 if (uriPrefix == null)
@@ -136,7 +140,11 @@ namespace SpaceWizards.HttpListener
                     throw new ArgumentException(SR.net_listener_scheme, nameof(uriPrefix));
                 }
 
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP2_1_OR_GREATER
                 int j = ServiceNameStore.FindEndOfHostname(uriPrefix, i);
+#else
+                int j = ServiceNameStore.FindEndOfHostname(uriPrefix.AsSpan(), i);
+#endif
                 if (i == j)
                 {
                     throw new ArgumentException(SR.net_listener_host, nameof(uriPrefix));
@@ -196,7 +204,7 @@ namespace SpaceWizards.HttpListener
 
                 if (_state == State.Started)
                 {
-                    RemovePrefixCore((string)_uriPrefixes[uriPrefix]!);
+                    RemovePrefixCore((string)_uriPrefixes[uriPrefix]);
                 }
 
                 _uriPrefixes.Remove(uriPrefix);
@@ -232,7 +240,7 @@ namespace SpaceWizards.HttpListener
             }
         }
 
-        public string? Realm
+        public string Realm
         {
             get => _realm;
             set
@@ -257,8 +265,8 @@ namespace SpaceWizards.HttpListener
         public Task<HttpListenerContext> GetContextAsync()
         {
             return Task.Factory.FromAsync(
-                (callback, state) => ((HttpListener)state!).BeginGetContext(callback, state),
-                iar => ((HttpListener)iar!.AsyncState!).EndGetContext(iar),
+                (callback, state) => ((HttpListener)state).BeginGetContext(callback, state),
+                iar => ((HttpListener)iar.AsyncState).EndGetContext(iar),
                 this);
         }
 

@@ -31,7 +31,9 @@
 //
 
 using System;
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP2_1_OR_GREATER
 using System.Diagnostics.CodeAnalysis;
+#endif
 using System.Net;
 
 namespace SpaceWizards.HttpListener
@@ -39,12 +41,12 @@ namespace SpaceWizards.HttpListener
     internal sealed class ListenerPrefix
     {
         private string _original;
-        private string? _host;
+        private string _host;
         private ushort _port;
-        private string? _path;
+        private string _path;
         private bool _secure;
-        private IPAddress[]? _addresses;
-        internal HttpListener? _listener;
+        private IPAddress[] _addresses;
+        internal HttpListener _listener;
 
         public ListenerPrefix(string prefix)
         {
@@ -57,7 +59,7 @@ namespace SpaceWizards.HttpListener
             return _original;
         }
 
-        public IPAddress[]? Addresses
+        public IPAddress[] Addresses
         {
             get { return _addresses; }
             set { _addresses = value; }
@@ -67,7 +69,7 @@ namespace SpaceWizards.HttpListener
             get { return _secure; }
         }
 
-        public string? Host
+        public string Host
         {
             get { return _host; }
         }
@@ -77,15 +79,19 @@ namespace SpaceWizards.HttpListener
             get { return _port; }
         }
 
-        public string? Path
+        public string Path
         {
             get { return _path; }
         }
 
         // Equals and GetHashCode are required to detect duplicates in HttpListenerPrefixCollection.
-        public override bool Equals([NotNullWhen(true)] object? o)
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP2_1_OR_GREATER
+        public override bool Equals([NotNullWhen(true)] object o)
+#else
+        public override bool Equals(object o)
+#endif
         {
-            ListenerPrefix? other = o as ListenerPrefix;
+            ListenerPrefix other = o as ListenerPrefix;
             if (other == null)
                 return false;
 
@@ -111,13 +117,21 @@ namespace SpaceWizards.HttpListener
             if (start_host >= length)
                 throw new ArgumentException(SR.net_listener_host);
 
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP2_1_OR_GREATER
             int end_host = ServiceNameStore.FindEndOfHostname(uri, start_host);
+#else
+            int end_host = ServiceNameStore.FindEndOfHostname(uri.AsSpan(), start_host);
+#endif
             int root;
             if (uri[end_host] == ':')
             {
                 _host = uri.Substring(start_host, end_host - start_host);
                 root = uri.IndexOf('/', end_host, length - end_host);
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP2_1_OR_GREATER
                 _port = (ushort)int.Parse(uri.AsSpan(end_host + 1, root - end_host - 1));
+#else
+                _port = (ushort)int.Parse(uri.AsSpan(end_host + 1, root - end_host - 1).ToString());
+#endif
                 _path = uri.Substring(root);
             }
             else

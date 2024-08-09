@@ -13,7 +13,7 @@ namespace SpaceWizards.HttpListener
     internal sealed class ServiceNameStore
     {
         private readonly List<string> _serviceNames;
-        private ServiceNameCollection? _serviceNameCollection;
+        private ServiceNameCollection _serviceNameCollection;
 
         public ServiceNameCollection ServiceNames
         {
@@ -33,7 +33,7 @@ namespace SpaceWizards.HttpListener
             _serviceNameCollection = null; // set only when needed (due to expensive item-by-item copy)
         }
 
-        private static string? NormalizeServiceName(string? inputServiceName)
+        private static string NormalizeServiceName(string inputServiceName)
         {
             if (string.IsNullOrWhiteSpace(inputServiceName))
             {
@@ -109,7 +109,7 @@ namespace SpaceWizards.HttpListener
 
             // Now we have a valid DNS host, normalize it.
 
-            Uri? constructedUri;
+            Uri constructedUri;
             // This shouldn't fail, but we need to avoid any unexpected exceptions on this code path.
             if (!Uri.TryCreate(Uri.UriSchemeHttp + Uri.SchemeDelimiter + host, UriKind.Absolute, out constructedUri))
             {
@@ -132,7 +132,7 @@ namespace SpaceWizards.HttpListener
 
         private bool AddSingleServiceName(string spn)
         {
-            spn = NormalizeServiceName(spn)!;
+            spn = NormalizeServiceName(spn);
             if (Contains(spn))
             {
                 return false;
@@ -177,13 +177,13 @@ namespace SpaceWizards.HttpListener
         {
             Debug.Assert(!string.IsNullOrEmpty(uriPrefix));
 
-            string? newServiceName = BuildSimpleServiceName(uriPrefix);
+            string newServiceName = BuildSimpleServiceName(uriPrefix);
             newServiceName = NormalizeServiceName(newServiceName);
             bool needToRemove = Contains(newServiceName);
 
             if (needToRemove)
             {
-                _serviceNames.Remove(newServiceName!);
+                _serviceNames.Remove(newServiceName);
                 _serviceNameCollection = null; //invalidate (readonly) ServiceNameCollection
             }
 
@@ -203,7 +203,7 @@ namespace SpaceWizards.HttpListener
         }
 
         // Assumes already normalized
-        private bool Contains(string? newServiceName)
+        private bool Contains(string newServiceName)
         {
             if (newServiceName == null)
             {
@@ -227,7 +227,7 @@ namespace SpaceWizards.HttpListener
             _serviceNameCollection = null; //invalidate (readonly) ServiceNameCollection
         }
 
-        private string? ExtractHostname(string uriPrefix, bool allowInvalidUriStrings)
+        private string ExtractHostname(string uriPrefix, bool allowInvalidUriStrings)
         {
             if (Uri.IsWellFormedUriString(uriPrefix, UriKind.Absolute))
             {
@@ -237,7 +237,12 @@ namespace SpaceWizards.HttpListener
             else if (allowInvalidUriStrings)
             {
                 int i = uriPrefix.IndexOf("://", StringComparison.Ordinal) + 3;
+
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP2_1_OR_GREATER
                 int j = FindEndOfHostname(uriPrefix, i);
+#else
+                int j = FindEndOfHostname(uriPrefix.AsSpan(), i);
+#endif
 
                 return uriPrefix.Substring(i, j - i);
             }
@@ -271,9 +276,9 @@ namespace SpaceWizards.HttpListener
             return j;
         }
 
-        public string? BuildSimpleServiceName(string uriPrefix)
+        public string BuildSimpleServiceName(string uriPrefix)
         {
-            string? hostname = ExtractHostname(uriPrefix, false);
+            string hostname = ExtractHostname(uriPrefix, false);
 
             if (hostname != null)
             {
@@ -287,9 +292,9 @@ namespace SpaceWizards.HttpListener
 
         public string[] BuildServiceNames(string uriPrefix)
         {
-            string hostname = ExtractHostname(uriPrefix, true)!;
+            string hostname = ExtractHostname(uriPrefix, true);
 
-            IPAddress? ipAddress = null;
+            IPAddress ipAddress = null;
             if (string.Equals(hostname, "*", StringComparison.OrdinalIgnoreCase) ||
                 string.Equals(hostname, "+", StringComparison.OrdinalIgnoreCase) ||
                 IPAddress.TryParse(hostname, out ipAddress))
@@ -310,7 +315,7 @@ namespace SpaceWizards.HttpListener
                     return Array.Empty<string>();
                 }
             }
-            else if (!hostname.Contains('.'))
+            else if (!hostname.Contains("."))
             {
                 // for a dotless name, try to resolve the FQDN.  If the caller doesn't have DNS permission
                 // or the query fails for some reason, add only the dotless name.

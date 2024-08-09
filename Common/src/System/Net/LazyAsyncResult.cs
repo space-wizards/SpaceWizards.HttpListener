@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-#nullable enable
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
@@ -17,13 +16,13 @@ namespace System.Net
 
         // This is to avoid user mistakes when they queue another async op from a callback the completes sync.
         [ThreadStatic]
-        private static ThreadContext? t_threadContext;
+        private static ThreadContext t_threadContext;
 
         private static ThreadContext CurrentThreadContext
         {
             get
             {
-                ThreadContext? threadContext = t_threadContext;
+                ThreadContext threadContext = t_threadContext;
                 if (threadContext == null)
                 {
                     threadContext = new ThreadContext();
@@ -43,10 +42,10 @@ namespace System.Net
         private bool _protectState;                 // Used by ContextAwareResult to prevent some calls.
 #endif
 
-        private readonly object? _asyncObject;              // Caller's async object.
-        private readonly object? _asyncState;               // Caller's state object.
-        private AsyncCallback? _asyncCallback;     // Caller's callback method.
-        private object? _result;                   // Final IO result to be returned byt the End*() method.
+        private readonly object _asyncObject;              // Caller's async object.
+        private readonly object _asyncState;               // Caller's state object.
+        private AsyncCallback _asyncCallback;     // Caller's callback method.
+        private object _result;                   // Final IO result to be returned byt the End*() method.
         private int _errorCode;                    // Win32 error code for Win32 IO async calls (that want to throw).
         private int _intCompleted;                 // Sign bit indicates synchronous completion if set.
                                                    // Remaining bits count the number of InvokeCallbak() calls.
@@ -54,9 +53,9 @@ namespace System.Net
         private bool _endCalled;                   // True if the user called the End*() method.
         private bool _userEvent;                   // True if the event has been (or is about to be) handed to the user
 
-        private object? _event;                    // Lazy allocated event to be returned in the IAsyncResult for the client to wait on.
+        private object _event;                    // Lazy allocated event to be returned in the IAsyncResult for the client to wait on.
 
-        internal LazyAsyncResult(object? myObject, object? myState, AsyncCallback? myCallBack)
+        internal LazyAsyncResult(object myObject, object myState, AsyncCallback myCallBack)
         {
             _asyncObject = myObject;
             _asyncState = myState;
@@ -66,7 +65,7 @@ namespace System.Net
         }
 
         // Interface method to return the original async object.
-        internal object? AsyncObject
+        internal object AsyncObject
         {
             get
             {
@@ -75,7 +74,7 @@ namespace System.Net
         }
 
         // Interface method to return the caller's state object.
-        public object? AsyncState
+        public object AsyncState
         {
             get
             {
@@ -83,7 +82,7 @@ namespace System.Net
             }
         }
 
-        protected AsyncCallback? AsyncCallback
+        protected AsyncCallback AsyncCallback
         {
             get
             {
@@ -127,7 +126,7 @@ namespace System.Net
                 // possible for _event to become null immediately after being set, but only if
                 // IsCompleted has become true.  Therefore it's possible for this property
                 // to give different (set) events to different callers when IsCompleted is true.
-                ManualResetEvent? asyncEvent = (ManualResetEvent?)_event;
+                ManualResetEvent asyncEvent = (ManualResetEvent)_event;
                 while (asyncEvent == null)
                 {
                     LazilyCreateEvent(out asyncEvent);
@@ -242,7 +241,7 @@ namespace System.Net
         }
 
         // Internal property for setting the IO result.
-        internal object? Result
+        internal object Result
         {
             get
             {
@@ -293,7 +292,7 @@ namespace System.Net
         // Used by derived classes to pass context into an overridden Complete().  Useful
         // for determining the 'winning' thread in case several may simultaneously call
         // the equivalent of InvokeCallback().
-        protected void ProtectedInvokeCallback(object? result, IntPtr userToken)
+        protected void ProtectedInvokeCallback(object result, IntPtr userToken)
         {
             // Critical to disallow DBNull here - it could result in a stuck spinlock in WaitForCompletion.
             if (result == DBNull.Value)
@@ -315,7 +314,7 @@ namespace System.Net
                     _result = result;
                 }
 
-                ManualResetEvent? asyncEvent = (ManualResetEvent?)_event;
+                ManualResetEvent asyncEvent = (ManualResetEvent)_event;
                 if (asyncEvent != null)
                 {
                     try
@@ -334,7 +333,7 @@ namespace System.Net
         }
 
         // Completes the IO with a result and invoking the user's callback.
-        internal void InvokeCallback(object? result)
+        internal void InvokeCallback(object result)
         {
             ProtectedInvokeCallback(result, IntPtr.Zero);
         }
@@ -365,7 +364,7 @@ namespace System.Net
                         if (NetEventSource.Log.IsEnabled()) NetEventSource.Info(this, "*** OFFLOADED the user callback ****");
 
                         Task.Factory.StartNew(
-                            s => WorkerThreadComplete(s!),
+                            s => WorkerThreadComplete(s),
                             this,
                             CancellationToken.None,
                             TaskCreationOptions.DenyChildAttach,
@@ -403,7 +402,7 @@ namespace System.Net
 
             try
             {
-                thisPtr._asyncCallback!(thisPtr);
+                thisPtr._asyncCallback(thisPtr);
             }
             finally
             {
@@ -418,21 +417,21 @@ namespace System.Net
         {
         }
 
-        internal object? InternalWaitForCompletion()
+        internal object InternalWaitForCompletion()
         {
             return WaitForCompletion(true);
         }
 
-        private object? WaitForCompletion(bool snap)
+        private object WaitForCompletion(bool snap)
         {
-            ManualResetEvent? waitHandle = null;
+            ManualResetEvent waitHandle = null;
             bool createdByMe = false;
             bool complete = snap ? IsCompleted : InternalPeekCompleted;
 
             if (!complete)
             {
                 // Not done yet, so wait:
-                waitHandle = (ManualResetEvent?)_event;
+                waitHandle = (ManualResetEvent)_event;
                 if (waitHandle == null)
                 {
                     createdByMe = LazilyCreateEvent(out waitHandle);
@@ -458,7 +457,7 @@ namespace System.Net
                     {
                         // Does _userEvent need to be volatile (or _event set via Interlocked) in order
                         // to avoid giving a user a disposed event?
-                        ManualResetEvent? oldEvent = (ManualResetEvent?)_event;
+                        ManualResetEvent oldEvent = (ManualResetEvent)_event;
                         _event = null;
                         if (!_userEvent)
                         {

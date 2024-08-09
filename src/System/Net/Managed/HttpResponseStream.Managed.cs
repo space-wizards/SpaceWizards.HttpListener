@@ -57,8 +57,8 @@ namespace SpaceWizards.HttpListener
 
         private void DisposeCore()
         {
-            byte[]? bytes = null;
-            MemoryStream? ms = GetHeaders(true);
+            byte[] bytes = null;
+            MemoryStream ms = GetHeaders(true);
             bool chunked = _response.SendChunked;
             if (_stream.CanWrite)
             {
@@ -98,7 +98,7 @@ namespace SpaceWizards.HttpListener
 
             if (_stream.CanWrite)
             {
-                MemoryStream ms = GetHeaders(closing: false, isWebSocketHandshake: true)!;
+                MemoryStream ms = GetHeaders(closing: false, isWebSocketHandshake: true);
                 bool chunked = _response.SendChunked;
 
                 long start = ms.Position;
@@ -114,7 +114,7 @@ namespace SpaceWizards.HttpListener
             }
         }
 
-        private MemoryStream? GetHeaders(bool closing, bool isWebSocketHandshake = false)
+        private MemoryStream GetHeaders(bool closing, bool isWebSocketHandshake = false)
         {
             // SendHeaders works on shared headers
             lock (_response._headersLock)
@@ -167,7 +167,11 @@ namespace SpaceWizards.HttpListener
 
         private async Task InternalWriteIgnoreErrorsAsync(byte[] buffer, int offset, int count)
         {
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP2_1_OR_GREATER
             try { await _stream.WriteAsync(buffer.AsMemory(offset, count)).ConfigureAwait(false); }
+#else
+            try { await _stream.WriteAsync(buffer, offset, count).ConfigureAwait(false); }
+#endif
             catch { }
         }
 
@@ -176,8 +180,8 @@ namespace SpaceWizards.HttpListener
             if (size == 0)
                 return;
 
-            byte[]? bytes = null;
-            MemoryStream? ms = GetHeaders(false);
+            byte[] bytes = null;
+            MemoryStream ms = GetHeaders(false);
             bool chunked = _response.SendChunked;
             if (ms != null)
             {
@@ -209,7 +213,7 @@ namespace SpaceWizards.HttpListener
                 InternalWrite(s_crlf, 0, 2);
         }
 
-        private IAsyncResult BeginWriteCore(byte[] buffer, int offset, int size, AsyncCallback? cback, object? state)
+        private IAsyncResult BeginWriteCore(byte[] buffer, int offset, int size, AsyncCallback cback, object state)
         {
             if (_closed)
             {
@@ -232,8 +236,8 @@ namespace SpaceWizards.HttpListener
                 return ares;
             }
 
-            byte[]? bytes = null;
-            MemoryStream? ms = GetHeaders(false);
+            byte[] bytes = null;
+            MemoryStream ms = GetHeaders(false);
             bool chunked = _response.SendChunked;
             if (ms != null)
             {
@@ -280,8 +284,11 @@ namespace SpaceWizards.HttpListener
         {
             if (_closed)
                 return;
-
+#if NET5_0_OR_GREATER
             if (asyncResult is HttpStreamAsyncResult { _buffer: not null, _count: 0 })
+#else
+            if (asyncResult is HttpStreamAsyncResult result && result._buffer != null && result._count == 0)
+#endif
                 return;
 
             if (_ignore_errors)
@@ -309,7 +316,11 @@ namespace SpaceWizards.HttpListener
                     // wrap the whole thing in an HttpListenerException.  This is all to match Windows behavior.
                     if (ex.InnerException is ArgumentException || ex.InnerException is InvalidOperationException)
                     {
+#if NET462_OR_GREATER || NETCORE1_0_OR_GREATER
                         ExceptionDispatchInfo.Throw(ex.InnerException);
+#else
+                        throw ex.InnerException;
+#endif
                     }
 
                     throw new HttpListenerException(ex.HResult, ex.Message);

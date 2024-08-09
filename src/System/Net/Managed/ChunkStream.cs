@@ -367,7 +367,11 @@ namespace SpaceWizards.HttpListener
 
                 if (st > 0)
                 {
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP2_1_OR_GREATER
                     _saved.Append(stString.AsSpan(0, _saved.Length == 0 ? st - 2 : st));
+#else
+                    _saved.Append(stString.AsSpan(0, _saved.Length == 0 ? st - 2 : st).ToString());
+#endif
                     st = 0;
                     if (_saved.Length > 4196)
                         ThrowProtocolViolation("Error reading trailer (too long).");
@@ -384,7 +388,7 @@ namespace SpaceWizards.HttpListener
             }
 
             StringReader reader = new StringReader(_saved.ToString());
-            string? line;
+            string line;
             while ((line = reader.ReadLine()) != null && line != "")
                 _headers.Add(line);
 

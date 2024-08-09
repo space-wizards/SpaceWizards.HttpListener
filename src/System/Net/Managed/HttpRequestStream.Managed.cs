@@ -128,7 +128,7 @@ namespace SpaceWizards.HttpListener
             return nread;
         }
 
-        protected virtual IAsyncResult BeginReadCore(byte[] buffer, int offset, int size, AsyncCallback? cback, object? state)
+        protected virtual IAsyncResult BeginReadCore(byte[] buffer, int offset, int size, AsyncCallback cback, object state)
         {
             if (size == 0 || _closed)
             {
@@ -198,7 +198,11 @@ namespace SpaceWizards.HttpListener
             }
             catch (IOException e) when (e.InnerException is ArgumentException || e.InnerException is InvalidOperationException)
             {
+#if NET462_OR_GREATER || NETCORE1_0_OR_GREATER
                 ExceptionDispatchInfo.Throw(e.InnerException);
+#else
+                throw e.InnerException;
+#endif
             }
 
             if (_remainingBody > 0)

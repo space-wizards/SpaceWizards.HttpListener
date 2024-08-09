@@ -40,20 +40,20 @@ namespace SpaceWizards.HttpListener
 {
     internal sealed class ListenerAsyncResult : IAsyncResult
     {
-        private ManualResetEvent? _handle;
+        private ManualResetEvent _handle;
         private bool _synch;
         private bool _completed;
-        private AsyncCallback? _cb;
-        private object? _state;
-        private Exception? _exception;
-        private HttpListenerContext? _context;
+        private AsyncCallback _cb;
+        private object _state;
+        private Exception _exception;
+        private HttpListenerContext _context;
         private object _locker = new object();
-        private ListenerAsyncResult? _forward;
+        private ListenerAsyncResult _forward;
         internal readonly HttpListener _parent;
         internal bool _endCalled;
         internal bool _inGet;
 
-        public ListenerAsyncResult(HttpListener parent, AsyncCallback? cb, object? state)
+        public ListenerAsyncResult(HttpListener parent, AsyncCallback cb, object state)
         {
             _parent = parent;
             _cb = cb;
@@ -81,10 +81,10 @@ namespace SpaceWizards.HttpListener
             }
         }
 
-        private static WaitCallback s_invokeCB = new WaitCallback(InvokeCallback!);
+        private static WaitCallback s_invokeCB = new WaitCallback(InvokeCallback);
         private static void InvokeCallback(object o)
         {
-            ListenerAsyncResult ares = (ListenerAsyncResult)o!;
+            ListenerAsyncResult ares = (ListenerAsyncResult)o;
             if (ares._forward != null)
             {
                 InvokeCallback(ares._forward);
@@ -92,7 +92,7 @@ namespace SpaceWizards.HttpListener
             }
             try
             {
-                ares._cb!(ares);
+                ares._cb(ares);
             }
             catch
             {
@@ -118,7 +118,7 @@ namespace SpaceWizards.HttpListener
                 bool authFailure = false;
                 try
                 {
-                    context.AuthenticationSchemes = context._listener!.SelectAuthenticationScheme(context);
+                    context.AuthenticationSchemes = context._listener.SelectAuthenticationScheme(context);
                 }
                 catch (OutOfMemoryException oom)
                 {
@@ -141,7 +141,7 @@ namespace SpaceWizards.HttpListener
                 else if (context.AuthenticationSchemes == AuthenticationSchemes.Basic)
                 {
                     HttpStatusCode errorCode = HttpStatusCode.Unauthorized;
-                    string? authHeader = context.Request.Headers["Authorization"];
+                    string authHeader = context.Request.Headers["Authorization"];
                     if (authHeader == null ||
                         !HttpListenerContext.IsBasicHeader(authHeader) ||
                         authHeader.Length < AuthenticationTypes.Basic.Length + 2 ||
@@ -151,7 +151,7 @@ namespace SpaceWizards.HttpListener
                         context.Response.StatusCode = (int)errorCode;
                         if (errorCode == HttpStatusCode.Unauthorized)
                         {
-                            context.Response.Headers["WWW-Authenticate"] = context.AuthenticationSchemes + " realm=\"" + context._listener!.Realm + "\"";
+                            context.Response.Headers["WWW-Authenticate"] = context.AuthenticationSchemes + " realm=\"" + context._listener.Realm + "\"";
                         }
                     }
                 }
@@ -159,7 +159,7 @@ namespace SpaceWizards.HttpListener
                 if (authFailure)
                 {
                     context.Response.OutputStream.Close();
-                    IAsyncResult ares = context._listener!.BeginGetContext(_cb, _state);
+                    IAsyncResult ares = context._listener.BeginGetContext(_cb, _state);
                     _forward = (ListenerAsyncResult)ares;
                     lock (_forward._locker)
                     {
@@ -188,7 +188,7 @@ namespace SpaceWizards.HttpListener
             }
         }
 
-        internal HttpListenerContext? GetContext()
+        internal HttpListenerContext GetContext()
         {
             if (_forward != null)
             {
@@ -197,13 +197,17 @@ namespace SpaceWizards.HttpListener
 
             if (_exception != null)
             {
+#if NET462_OR_GREATER || NETCORE1_0_OR_GREATER
                 ExceptionDispatchInfo.Throw(_exception);
+#else
+                throw _exception;
+#endif
             }
 
             return _context;
         }
 
-        public object? AsyncState
+        public object AsyncState
         {
             get
             {

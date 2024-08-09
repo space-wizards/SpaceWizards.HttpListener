@@ -35,7 +35,7 @@ namespace SpaceWizards.HttpListener
 
         public override int Read(byte[] buffer, int offset, int size) => throw new InvalidOperationException(SR.net_writeonlystream);
 
-        public override IAsyncResult BeginRead(byte[] buffer, int offset, int size, AsyncCallback? callback, object? state)
+        public override IAsyncResult BeginRead(byte[] buffer, int offset, int size, AsyncCallback callback, object state)
         {
             throw new InvalidOperationException(SR.net_writeonlystream);
         }
@@ -56,7 +56,7 @@ namespace SpaceWizards.HttpListener
             WriteCore(buffer, offset, count);
         }
 
-        public override IAsyncResult BeginWrite(byte[] buffer, int offset, int count, AsyncCallback? callback, object? state)
+        public override IAsyncResult BeginWrite(byte[] buffer, int offset, int count, AsyncCallback callback, object state)
         {
             StreamHelper.ValidateBufferArguments(buffer, offset, count);
 

@@ -46,18 +46,18 @@ namespace SpaceWizards.HttpListener
 {
     internal sealed class HttpConnection
     {
-        private static readonly Action<Task<int>, object?> s_onreadCallback = OnRead;
+        private static readonly Action<Task<int>, object> s_onreadCallback = OnRead;
         private const int BufferSize = 8192;
-        private Socket? _socket;
+        private Socket _socket;
         private Stream _stream;
         private HttpEndPointListener _epl;
-        private MemoryStream? _memoryStream;
-        private byte[]? _buffer;
+        private MemoryStream _memoryStream;
+        private byte[] _buffer;
         private HttpListenerContext _context;
-        private StringBuilder? _currentLine;
-        private ListenerPrefix? _prefix;
-        private HttpRequestStream? _requestStream;
-        private HttpResponseStream? _responseStream;
+        private StringBuilder _currentLine;
+        private ListenerPrefix _prefix;
+        private HttpRequestStream _requestStream;
+        private HttpResponseStream _responseStream;
         private bool _chunked;
         private int _reuses;
         private bool _contextBound;
@@ -65,11 +65,11 @@ namespace SpaceWizards.HttpListener
         private X509Certificate _cert;
         private int _timeout = 90000; // 90k ms for first request, 15k ms from then on
         private Timer _timer;
-        private IPEndPoint? _localEndPoint;
-        private HttpListener? _lastListener;
-        private int[]? _clientCertErrors;
-        private X509Certificate2? _clientCert;
-        private SslStream? _sslStream;
+        private IPEndPoint _localEndPoint;
+        private HttpListener _lastListener;
+        private int[] _clientCertErrors;
+        private X509Certificate2 _clientCert;
+        private SslStream _sslStream;
         private InputState _inputState = InputState.RequestLine;
         private LineState _lineState = LineState.None;
         private int _position;
@@ -94,8 +94,11 @@ namespace SpaceWizards.HttpListener
                         return true;
                     }
 
-                    X509Certificate2? c2 = c as X509Certificate2;
-                    c2 ??= new X509Certificate2(c.GetRawCertData());
+                    X509Certificate2 c2 = c as X509Certificate2;
+                    if (c2 == null)
+                    {
+                        c2 = new X509Certificate2(c.GetRawCertData());
+                    }
 
                     _clientCert = c2;
                     _clientCertErrors = new int[] { (int)e };
@@ -111,23 +114,24 @@ namespace SpaceWizards.HttpListener
             Init();
         }
 
-        internal int[]? ClientCertificateErrors
+        internal int[] ClientCertificateErrors
         {
             get { return _clientCertErrors; }
         }
 
-        internal X509Certificate2? ClientCertificate
+        internal X509Certificate2 ClientCertificate
         {
             get { return _clientCert; }
         }
 
-        internal SslStream? SslStream
+        internal SslStream SslStream
         {
             get { return _sslStream; }
         }
-
+#if NET5_0_OR_GREATER
         [MemberNotNull(nameof(_memoryStream))]
         [MemberNotNull(nameof(_context))]
+#endif
         private void Init()
         {
             _contextBound = false;
@@ -154,21 +158,21 @@ namespace SpaceWizards.HttpListener
             get { return _reuses; }
         }
 
-        public IPEndPoint? LocalEndPoint
+        public IPEndPoint LocalEndPoint
         {
             get
             {
                 if (_localEndPoint != null)
                     return _localEndPoint;
 
-                _localEndPoint = (IPEndPoint?)_socket!.LocalEndPoint;
+                _localEndPoint = (IPEndPoint)_socket.LocalEndPoint;
                 return _localEndPoint;
             }
         }
 
-        public IPEndPoint? RemoteEndPoint
+        public IPEndPoint RemoteEndPoint
         {
-            get { return (IPEndPoint?)_socket!.RemoteEndPoint; }
+            get { return (IPEndPoint)_socket.RemoteEndPoint; }
         }
 
         public bool IsSecure
@@ -176,13 +180,13 @@ namespace SpaceWizards.HttpListener
             get { return _secure; }
         }
 
-        public ListenerPrefix? Prefix
+        public ListenerPrefix Prefix
         {
             get { return _prefix; }
             set { _prefix = value; }
         }
 
-        private void OnTimeout(object? unused)
+        private void OnTimeout(object unused)
         {
             CloseSocket();
             Unbind();
@@ -211,8 +215,8 @@ namespace SpaceWizards.HttpListener
         {
             if (_requestStream == null)
             {
-                byte[] buffer = _memoryStream!.GetBuffer();
-                int length = (int)_memoryStream!.Length;
+                byte[] buffer = _memoryStream.GetBuffer();
+                int length = (int)_memoryStream.Length;
                 _memoryStream = null;
                 if (chunked)
                 {
@@ -232,7 +236,7 @@ namespace SpaceWizards.HttpListener
         {
             if (_responseStream == null)
             {
-                HttpListener? listener = _context._listener;
+                HttpListener listener = _context._listener;
 
                 if (listener == null)
                     return new HttpResponseStream(_stream, _context.Response, true);
@@ -242,9 +246,9 @@ namespace SpaceWizards.HttpListener
             return _responseStream;
         }
 
-        private static void OnRead(Task<int> task, object? state)
+        private static void OnRead(Task<int> task, object state)
         {
-            HttpConnection cnc = (HttpConnection)state!;
+            HttpConnection cnc = (HttpConnection)state;
             cnc.OnReadInternal(task);
         }
 
@@ -255,7 +259,7 @@ namespace SpaceWizards.HttpListener
             try
             {
                 nread = ares.Result;
-                _memoryStream!.Write(_buffer!, 0, nread);
+                _memoryStream.Write(_buffer, 0, nread);
                 if (_memoryStream.Length > 32768)
                 {
                     SendError(HttpStatusDescription.Get(400), 400);
@@ -301,7 +305,7 @@ namespace SpaceWizards.HttpListener
                     Close(true);
                     return;
                 }
-                HttpListener listener = _context._listener!;
+                HttpListener listener = _context._listener;
                 if (_lastListener != listener)
                 {
                     RemoveConnection();
@@ -314,7 +318,7 @@ namespace SpaceWizards.HttpListener
                 return;
             }
 
-            _stream.ReadAsync(_buffer!, 0, BufferSize).ContinueWith(s_onreadCallback, this);
+            _stream.ReadAsync(_buffer, 0, BufferSize).ContinueWith(s_onreadCallback, this);
         }
 
         private void RemoveConnection()
@@ -345,7 +349,7 @@ namespace SpaceWizards.HttpListener
             byte[] buffer = ms.GetBuffer();
             int len = (int)ms.Length;
             int used = 0;
-            string? line;
+            string line;
 
             while (true)
             {
@@ -362,7 +366,7 @@ namespace SpaceWizards.HttpListener
                 }
                 catch
                 {
-                    _context.ErrorMessage = HttpStatusDescription.Get(400)!;
+                    _context.ErrorMessage = HttpStatusDescription.Get(400);
                     _context.ErrorStatus = 400;
                     return true;
                 }
@@ -375,7 +379,7 @@ namespace SpaceWizards.HttpListener
                     if (_inputState == InputState.RequestLine)
                         continue;
                     _currentLine = null;
-                    ms = null!;
+                    ms = null;
                     return true;
                 }
 
@@ -407,7 +411,7 @@ namespace SpaceWizards.HttpListener
             return false;
         }
 
-        private string? ReadLine(byte[] buffer, int offset, int len, ref int used)
+        private string ReadLine(byte[] buffer, int offset, int len, ref int used)
         {
             if (_currentLine == null)
                 _currentLine = new StringBuilder(128);
@@ -431,7 +435,7 @@ namespace SpaceWizards.HttpListener
                 }
             }
 
-            string? result = null;
+            string result = null;
             if (_lineState == LineState.LF)
             {
                 _lineState = LineState.None;
@@ -442,15 +446,15 @@ namespace SpaceWizards.HttpListener
             return result;
         }
 
-        public void SendError(string? msg, int status)
+        public void SendError(string msg, int status)
         {
             try
             {
                 HttpListenerResponse response = _context.Response;
                 response.StatusCode = status;
                 response.ContentType = "text/html";
-                string? description = HttpStatusDescription.Get(status);
-                var str = !string.IsNullOrEmpty(msg) ?
+                string description = HttpStatusDescription.Get(status);
+                string str = !string.IsNullOrEmpty(msg) ?
                     $"<h1>{description} ({msg})</h1>" :
                     $"<h1>{description}</h1>";
 

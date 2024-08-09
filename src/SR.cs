@@ -2,22 +2,22 @@
 {
     internal static class SR
     {
-        internal static string Format(string resourceFormat, object? p1)
+        internal static string Format(string resourceFormat, object p1)
         {
             return string.Format(resourceFormat, p1);
         }
 
-        internal static string Format(string resourceFormat, object? p1, object? p2)
+        internal static string Format(string resourceFormat, object p1, object p2)
         {
             return string.Format(resourceFormat, p1, p2);
         }
 
-        internal static string Format(string resourceFormat, object? p1, object? p2, object? p3)
+        internal static string Format(string resourceFormat, object p1, object p2, object p3)
         {
             return string.Format(resourceFormat, p1, p2, p3);
         }
 
-        internal static string Format(string resourceFormat, params object?[]? args)
+        internal static string Format(string resourceFormat, params object[] args)
         {
             if (args != null)
             {
@@ -27,23 +27,23 @@
             return resourceFormat;
         }
 
-        internal static string Format(IFormatProvider? provider, string resourceFormat, object? p1)
+        internal static string Format(IFormatProvider provider, string resourceFormat, object p1)
         {
             return string.Format(provider, resourceFormat, p1);
         }
 
-        internal static string Format(IFormatProvider? provider, string resourceFormat, object? p1, object? p2)
+        internal static string Format(IFormatProvider provider, string resourceFormat, object p1, object p2)
         {
             return string.Format(provider, resourceFormat, p1, p2);
         }
 
-        internal static string Format(IFormatProvider? provider, string resourceFormat, object? p1, object? p2,
-            object? p3)
+        internal static string Format(IFormatProvider provider, string resourceFormat, object p1, object p2,
+            object p3)
         {
             return string.Format(provider, resourceFormat, p1, p2, p3);
         }
 
-        internal static string Format(IFormatProvider? provider, string resourceFormat, params object?[]? args)
+        internal static string Format(IFormatProvider provider, string resourceFormat, params object[] args)
         {
             if (args != null)
             {

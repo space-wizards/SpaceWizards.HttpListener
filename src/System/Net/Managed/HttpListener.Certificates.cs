@@ -17,7 +17,7 @@ namespace SpaceWizards.HttpListener
             return new SslStream(innerStream, ownsStream, callback);
         }
 
-        internal X509Certificate? LoadCertificateAndKey(IPAddress addr, int port)
+        internal X509Certificate LoadCertificateAndKey(IPAddress addr, int port)
         {
             return _certificate;
         }

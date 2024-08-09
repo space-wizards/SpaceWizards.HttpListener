@@ -12,11 +12,11 @@ namespace SpaceWizards.HttpListener
     public sealed unsafe partial class HttpListenerResponse : IDisposable
     {
         private BoundaryType _boundaryType = BoundaryType.None;
-        private CookieCollection? _cookies;
-        private readonly HttpListenerContext? _httpContext;
+        private CookieCollection _cookies;
+        private readonly HttpListenerContext _httpContext;
         private bool _keepAlive = true;
-        private HttpResponseStream? _responseStream;
-        private string? _statusDescription;
+        private HttpResponseStream _responseStream;
+        private string _statusDescription;
         private WebHeaderCollection _webHeaders = new WebHeaderCollection();
 
         public WebHeaderCollection Headers
@@ -32,9 +32,9 @@ namespace SpaceWizards.HttpListener
             }
         }
 
-        public Encoding? ContentEncoding { get; set; }
+        public Encoding ContentEncoding { get; set; }
 
-        public string? ContentType
+        public string ContentType
         {
             get => Headers[HttpKnownHeaderNames.ContentType];
             set
@@ -51,9 +51,9 @@ namespace SpaceWizards.HttpListener
             }
         }
 
-        private HttpListenerContext HttpListenerContext => _httpContext!;
+        private HttpListenerContext HttpListenerContext => _httpContext;
 
-        private HttpListenerRequest HttpListenerRequest => HttpListenerContext!.Request;
+        private HttpListenerRequest HttpListenerRequest => HttpListenerContext.Request;
 
         internal EntitySendFormat EntitySendFormat
         {
@@ -136,11 +136,11 @@ namespace SpaceWizards.HttpListener
             {
                 CheckDisposed();
                 EnsureResponseStream();
-                return _responseStream!;
+                return _responseStream;
             }
         }
 
-        public string? RedirectLocation
+        public string RedirectLocation
         {
             get => Headers[HttpResponseHeader.Location];
             set
@@ -226,7 +226,7 @@ namespace SpaceWizards.HttpListener
             if (_cookies != null)
             {
                 // now go through the collection, and concatenate all the cookies in per-variant strings
-                string? setCookie2 = null, setCookie = null;
+                string setCookie2 = null, setCookie = null;
                 for (int index = 0; index < _cookies.Count; index++)
                 {
                     Cookie cookie = _cookies[index];
@@ -273,7 +273,7 @@ namespace SpaceWizards.HttpListener
             if (NetEventSource.Log.IsEnabled()) NetEventSource.Info(this, $"url={url}");
             Headers[HttpResponseHeader.Location] = url;
             StatusCode = (int)HttpStatusCode.Redirect;
-            StatusDescription = HttpStatusDescription.Get(StatusCode)!;
+            StatusDescription = HttpStatusDescription.Get(StatusCode);
         }
 
         public void SetCookie(Cookie cookie)

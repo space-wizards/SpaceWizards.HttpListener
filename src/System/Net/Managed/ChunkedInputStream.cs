@@ -78,7 +78,7 @@ namespace SpaceWizards.HttpListener
             return EndRead(ares);
         }
 
-        protected override IAsyncResult BeginReadCore(byte[] buffer, int offset, int size, AsyncCallback? cback, object? state)
+        protected override IAsyncResult BeginReadCore(byte[] buffer, int offset, int size, AsyncCallback cback, object state)
         {
             HttpStreamAsyncResult ares = new HttpStreamAsyncResult(this);
             ares._callback = cback;
@@ -116,7 +116,7 @@ namespace SpaceWizards.HttpListener
 
         private void OnRead(IAsyncResult base_ares)
         {
-            ReadBufferState rb = (ReadBufferState)base_ares.AsyncState!;
+            ReadBufferState rb = (ReadBufferState)base_ares.AsyncState;
             HttpStreamAsyncResult ares = rb.Ares;
             try
             {
@@ -129,7 +129,7 @@ namespace SpaceWizards.HttpListener
                     return;
                 }
 
-                _decoder.Write(ares._buffer!, ares._offset, nread);
+                _decoder.Write(ares._buffer, ares._offset, nread);
                 nread = _decoder.Read(rb.Buffer, rb.Offset, rb.Count);
                 rb.Offset += nread;
                 rb.Count -= nread;
@@ -142,7 +142,7 @@ namespace SpaceWizards.HttpListener
                 }
                 ares._offset = 0;
                 ares._count = Math.Min(8192, _decoder.ChunkLeft + 6);
-                base.BeginReadCore(ares._buffer!, ares._offset, ares._count, OnRead, rb);
+                base.BeginReadCore(ares._buffer, ares._offset, ares._count, OnRead, rb);
             }
             catch (Exception e)
             {
@@ -156,7 +156,7 @@ namespace SpaceWizards.HttpListener
             if (asyncResult == null)
                 throw new ArgumentNullException(nameof(asyncResult));
 
-            HttpStreamAsyncResult? ares = asyncResult as HttpStreamAsyncResult;
+            HttpStreamAsyncResult ares = asyncResult as HttpStreamAsyncResult;
             if (ares == null || !ReferenceEquals(this, ares._parent))
             {
                 throw new ArgumentException(SR.net_io_invalidasyncresult, nameof(asyncResult));

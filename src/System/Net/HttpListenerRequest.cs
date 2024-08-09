@@ -18,24 +18,24 @@ namespace SpaceWizards.HttpListener
 {
     public sealed unsafe partial class HttpListenerRequest
     {
-        private CookieCollection? _cookies;
+        private CookieCollection _cookies;
         private bool? _keepAlive;
-        private string? _rawUrl;
-        private Uri? _requestUri;
+        private string _rawUrl;
+        private Uri _requestUri;
         private Version _version;
 
-        public string[]? AcceptTypes => Helpers.ParseMultivalueHeader(Headers[HttpKnownHeaderNames.Accept]!);
+        public string[] AcceptTypes => Helpers.ParseMultivalueHeader(Headers[HttpKnownHeaderNames.Accept]);
 
-        public string[]? UserLanguages => Helpers.ParseMultivalueHeader(Headers[HttpKnownHeaderNames.AcceptLanguage]!);
+        public string[] UserLanguages => Helpers.ParseMultivalueHeader(Headers[HttpKnownHeaderNames.AcceptLanguage]);
 
-        private CookieCollection ParseCookies(Uri? uri, string setCookieHeader)
+        private CookieCollection ParseCookies(Uri uri, string setCookieHeader)
         {
             if (NetEventSource.Log.IsEnabled()) NetEventSource.Info(this, "uri:" + uri + " setCookieHeader:" + setCookieHeader);
             CookieCollection cookies = new CookieCollection();
             CookieParser parser = new CookieParser(setCookieHeader);
             while (true)
             {
-                Cookie? cookie = parser.GetServer();
+                Cookie cookie = parser.GetServer();
                 if (cookie == null)
                 {
                     // EOF, done.
@@ -58,7 +58,7 @@ namespace SpaceWizards.HttpListener
             {
                 if (_cookies == null)
                 {
-                    string? cookieString = Headers[HttpKnownHeaderNames.Cookie];
+                    string cookieString = Headers[HttpKnownHeaderNames.Cookie];
                     if (!string.IsNullOrEmpty(cookieString))
                     {
                         _cookies = ParseCookies(RequestUri, cookieString);
@@ -78,7 +78,7 @@ namespace SpaceWizards.HttpListener
             {
                 if (UserAgent != null && CultureInfo.InvariantCulture.CompareInfo.IsPrefix(UserAgent, "UP"))
                 {
-                    string? postDataCharset = Headers["x-up-devcap-post-charset"];
+                    string postDataCharset = Headers["x-up-devcap-post-charset"];
                     if (postDataCharset != null && postDataCharset.Length > 0)
                     {
                         try
@@ -94,7 +94,7 @@ namespace SpaceWizards.HttpListener
                 {
                     if (ContentType != null)
                     {
-                        string? charSet = Helpers.GetCharSetValueFromHeader(ContentType);
+                        string charSet = Helpers.GetCharSetValueFromHeader(ContentType);
                         if (charSet != null)
                         {
                             try
@@ -111,9 +111,9 @@ namespace SpaceWizards.HttpListener
             }
         }
 
-        public string? ContentType => Headers[HttpKnownHeaderNames.ContentType];
+        public string ContentType => Headers[HttpKnownHeaderNames.ContentType];
 
-        public bool IsLocal => LocalEndPoint!.Address.Equals(RemoteEndPoint!.Address);
+        public bool IsLocal => LocalEndPoint.Address.Equals(RemoteEndPoint.Address);
 
         public bool IsWebSocketRequest
         {
@@ -130,7 +130,7 @@ namespace SpaceWizards.HttpListener
                     return false;
                 }
 
-                foreach (string connection in Headers.GetValues(HttpKnownHeaderNames.Connection)!)
+                foreach (string connection in Headers.GetValues(HttpKnownHeaderNames.Connection))
                 {
                     if (string.Equals(connection, HttpKnownHeaderNames.Upgrade, StringComparison.OrdinalIgnoreCase))
                     {
@@ -144,7 +144,7 @@ namespace SpaceWizards.HttpListener
                     return false;
                 }
 
-                foreach (string upgrade in Headers.GetValues(HttpKnownHeaderNames.Upgrade)!)
+                foreach (string upgrade in Headers.GetValues(HttpKnownHeaderNames.Upgrade))
                 {
                     if (string.Equals(upgrade, HttpWebSocket.WebSocketUpgradeToken, StringComparison.OrdinalIgnoreCase))
                     {
@@ -162,7 +162,7 @@ namespace SpaceWizards.HttpListener
             {
                 if (!_keepAlive.HasValue)
                 {
-                    string? header = Headers[HttpKnownHeaderNames.ProxyConnection];
+                    string header = Headers[HttpKnownHeaderNames.ProxyConnection];
                     if (string.IsNullOrEmpty(header))
                     {
                         header = Headers[HttpKnownHeaderNames.Connection];
@@ -184,7 +184,7 @@ namespace SpaceWizards.HttpListener
                         header = header.ToLowerInvariant();
                         _keepAlive =
                             header.IndexOf("close", StringComparison.OrdinalIgnoreCase) < 0 ||
-                            header.Contains("keep-alive", StringComparison.OrdinalIgnoreCase);
+                            header.IndexOf("keep-alive", StringComparison.OrdinalIgnoreCase) >= 0;
                     }
                 }
 
@@ -198,41 +198,41 @@ namespace SpaceWizards.HttpListener
             get
             {
                 NameValueCollection queryString = new NameValueCollection();
-                Helpers.FillFromString(queryString, Url!.Query, true, ContentEncoding);
+                Helpers.FillFromString(queryString, Url.Query, true, ContentEncoding);
                 return queryString;
             }
         }
 
-        public string? RawUrl => _rawUrl;
+        public string RawUrl => _rawUrl;
 
         private string RequestScheme => IsSecureConnection ? UriScheme.Https : UriScheme.Http;
 
-        public string UserAgent => Headers[HttpKnownHeaderNames.UserAgent]!;
+        public string UserAgent => Headers[HttpKnownHeaderNames.UserAgent];
 
-        public string UserHostAddress => LocalEndPoint!.ToString();
+        public string UserHostAddress => LocalEndPoint.ToString();
 
-        public string UserHostName => Headers[HttpKnownHeaderNames.Host]!;
+        public string UserHostName => Headers[HttpKnownHeaderNames.Host];
 
-        public Uri? UrlReferrer
+        public Uri UrlReferrer
         {
             get
             {
-                string? referrer = Headers[HttpKnownHeaderNames.Referer];
+                string referrer = Headers[HttpKnownHeaderNames.Referer];
                 if (referrer == null)
                 {
                     return null;
                 }
 
-                bool success = Uri.TryCreate(referrer, UriKind.RelativeOrAbsolute, out Uri? urlReferrer);
+                bool success = Uri.TryCreate(referrer, UriKind.RelativeOrAbsolute, out Uri urlReferrer);
                 return success ? urlReferrer : null;
             }
         }
 
-        public Uri? Url => RequestUri;
+        public Uri Url => RequestUri;
 
         public Version ProtocolVersion => _version;
 
-        public X509Certificate2? GetClientCertificate()
+        public X509Certificate2 GetClientCertificate()
         {
             if (ClientCertState == ListenerClientCertState.InProgress)
                 throw new InvalidOperationException(SR.Format(SR.net_listener_callinprogress, $"{nameof(GetClientCertificate)}()/{nameof(BeginGetClientCertificate)}()"));
@@ -246,7 +246,7 @@ namespace SpaceWizards.HttpListener
             return ClientCertificate;
         }
 
-        public IAsyncResult BeginGetClientCertificate(AsyncCallback? requestCallback, object? state)
+        public IAsyncResult BeginGetClientCertificate(AsyncCallback requestCallback, object state)
         {
             if (NetEventSource.Log.IsEnabled()) NetEventSource.Info(this);
             if (ClientCertState == ListenerClientCertState.InProgress)
@@ -256,16 +256,16 @@ namespace SpaceWizards.HttpListener
             return BeginGetClientCertificateCore(requestCallback, state);
         }
 
-        public Task<X509Certificate2?> GetClientCertificateAsync()
+        public Task<X509Certificate2> GetClientCertificateAsync()
         {
             return Task.Factory.FromAsync(
-                (callback, state) => ((HttpListenerRequest)state!).BeginGetClientCertificate(callback, state),
-                iar => ((HttpListenerRequest)iar.AsyncState!).EndGetClientCertificate(iar),
+                (callback, state) => ((HttpListenerRequest)state).BeginGetClientCertificate(callback, state),
+                iar => ((HttpListenerRequest)iar.AsyncState).EndGetClientCertificate(iar),
                 this);
         }
 
         internal ListenerClientCertState ClientCertState { get; set; } = ListenerClientCertState.NotInitialized;
-        internal X509Certificate2? ClientCertificate { get; set; }
+        internal X509Certificate2 ClientCertificate { get; set; }
 
         public int ClientCertificateError
         {
@@ -285,7 +285,7 @@ namespace SpaceWizards.HttpListener
             //
             // Get attribute off header value
             //
-            internal static string? GetCharSetValueFromHeader(string headerValue)
+            internal static string GetCharSetValueFromHeader(string headerValue)
             {
                 const string AttrName = "charset";
 
@@ -330,7 +330,7 @@ namespace SpaceWizards.HttpListener
                     return null;
 
                 // parse the value
-                string? attrValue = null;
+                string attrValue = null;
 
                 int j;
 
@@ -361,7 +361,7 @@ namespace SpaceWizards.HttpListener
                 return attrValue;
             }
 
-            internal static string[]? ParseMultivalueHeader(string s)
+            internal static string[] ParseMultivalueHeader(string s)
             {
                 if (s == null)
                     return null;
@@ -484,7 +484,7 @@ namespace SpaceWizards.HttpListener
 
                 // Accumulate bytes for decoding into characters in a special array
                 private int _numBytes;
-                private byte[]? _byteBuffer;
+                private byte[] _byteBuffer;
 
                 // Encoding to convert chars to bytes
                 private readonly Encoding _encoding;
@@ -493,7 +493,7 @@ namespace SpaceWizards.HttpListener
                 {
                     if (_numBytes > 0)
                     {
-                        _numChars += _encoding.GetChars(_byteBuffer!, 0, _numBytes, _charBuffer, _numChars);
+                        _numChars += _encoding.GetChars(_byteBuffer, 0, _numBytes, _charBuffer, _numChars);
                         _numBytes = 0;
                     }
                 }
@@ -569,8 +569,8 @@ namespace SpaceWizards.HttpListener
 
                     // extract the name / value pair
 
-                    string? name = null;
-                    string? value = null;
+                    string name = null;
+                    string value = null;
 
                     if (ti >= 0)
                     {

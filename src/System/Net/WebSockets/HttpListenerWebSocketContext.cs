@@ -52,7 +52,7 @@ namespace SpaceWizards.HttpListener.WebSockets
             _cookieCollection.Add(cookieCollection);
 
             _headers = new NameValueCollection(headers);
-            _user = CopyPrincipal(user)!;
+            _user = CopyPrincipal(user);
 
             _requestUri = requestUri;
             _isAuthenticated = isAuthenticated;
@@ -89,7 +89,7 @@ namespace SpaceWizards.HttpListener.WebSockets
 
         public override WebSocket WebSocket => _webSocket;
 
-        private static IPrincipal? CopyPrincipal(IPrincipal user)
+        private static IPrincipal CopyPrincipal(IPrincipal user)
         {
             if (user != null)
             {

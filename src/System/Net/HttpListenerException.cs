@@ -12,7 +12,11 @@ namespace SpaceWizards.HttpListener
     [Serializable]
     public class HttpListenerException : Win32Exception
     {
+#if NET6_0_OR_GREATER
         public HttpListenerException() : base(Marshal.GetLastPInvokeError())
+#else
+        public HttpListenerException() : base(Marshal.GetLastWin32Error())
+#endif
         {
             if (NetEventSource.Log.IsEnabled()) NetEventSource.Info(this, $"{NativeErrorCode}:{Message}");
         }

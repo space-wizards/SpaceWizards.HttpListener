@@ -3,14 +3,14 @@
 
 using System;
 using System.ComponentModel;
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP2_1_OR_GREATER
 using System.Diagnostics.CodeAnalysis;
+#endif
 using System.Net;
 using System.Net.WebSockets;
 using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
-using SpaceWizards.HttpListener.WebSockets;
-using HttpListenerWebSocketContext = SpaceWizards.HttpListener.WebSockets.HttpListenerWebSocketContext;
 using HttpWebSocket = SpaceWizards.HttpListener.WebSockets.HttpWebSocket;
 
 namespace SpaceWizards.HttpListener
@@ -29,7 +29,7 @@ namespace SpaceWizards.HttpListener
 
         internal int ErrorStatus { get; set; }
 
-        internal string? ErrorMessage { get; set; }
+        internal string ErrorMessage { get; set; }
 
         internal bool HaveError => ErrorMessage != null;
 
@@ -40,7 +40,7 @@ namespace SpaceWizards.HttpListener
             if (expectedSchemes == AuthenticationSchemes.Anonymous)
                 return;
 
-            string? header = Request.Headers[HttpKnownHeaderNames.Authorization];
+            string header = Request.Headers[HttpKnownHeaderNames.Authorization];
             if (string.IsNullOrEmpty(header))
                 return;
 
@@ -50,8 +50,8 @@ namespace SpaceWizards.HttpListener
             }
         }
 
-        internal IPrincipal? ParseBasicAuthentication(string authData) =>
-            TryParseBasicAuth(authData, out HttpStatusCode errorCode, out string? username, out string? password) ?
+        internal IPrincipal ParseBasicAuthentication(string authData) =>
+            TryParseBasicAuth(authData, out HttpStatusCode errorCode, out string username, out string password) ?
                 new GenericPrincipal(new HttpListenerBasicIdentity(username, password), Array.Empty<string>()) :
                 null;
 
@@ -60,7 +60,11 @@ namespace SpaceWizards.HttpListener
             header[5] == ' ' &&
             string.Compare(header, 0, AuthenticationTypes.Basic, 0, 5, StringComparison.OrdinalIgnoreCase) == 0;
 
-        internal static bool TryParseBasicAuth(string headerValue, out HttpStatusCode errorCode, [NotNullWhen(true)] out string? username, [NotNullWhen(true)] out string? password)
+#if NETSTANDARD2_1_OR_GREATER || NETCOREAPP2_1_OR_GREATER
+        internal static bool TryParseBasicAuth(string headerValue, out HttpStatusCode errorCode, [NotNullWhen(true)] out string username, [NotNullWhen(true)] out string password)
+#else
+        internal static bool TryParseBasicAuth(string headerValue, out HttpStatusCode errorCode, out string username, out string password)
+#endif
         {
             errorCode = HttpStatusCode.OK;
             username = password = null;
@@ -91,17 +95,19 @@ namespace SpaceWizards.HttpListener
             }
         }
 
-        public Task<WebSockets.HttpListenerWebSocketContext> AcceptWebSocketAsync(string? subProtocol, int receiveBufferSize, TimeSpan keepAliveInterval)
+#if NETSTANDARD2_1_OR_GREATER || NET5_0_OR_GREATER
+        public Task<WebSockets.HttpListenerWebSocketContext> AcceptWebSocketAsync(string subProtocol, int receiveBufferSize, TimeSpan keepAliveInterval)
         {
             return HttpWebSocket.AcceptWebSocketAsyncCore(this, subProtocol, receiveBufferSize, keepAliveInterval);
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public Task<WebSockets.HttpListenerWebSocketContext> AcceptWebSocketAsync(string? subProtocol, int receiveBufferSize, TimeSpan keepAliveInterval, ArraySegment<byte> internalBuffer)
+        public Task<WebSockets.HttpListenerWebSocketContext> AcceptWebSocketAsync(string subProtocol, int receiveBufferSize, TimeSpan keepAliveInterval, ArraySegment<byte> internalBuffer)
         {
             WebSocketValidate.ValidateArraySegment(internalBuffer, nameof(internalBuffer));
             HttpWebSocket.ValidateOptions(subProtocol, receiveBufferSize, HttpWebSocket.MinSendBufferSize, keepAliveInterval);
             return HttpWebSocket.AcceptWebSocketAsyncCore(this, subProtocol, receiveBufferSize, keepAliveInterval, internalBuffer);
         }
+#endif
     }
 }
